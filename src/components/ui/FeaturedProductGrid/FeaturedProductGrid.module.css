@@ -1,0 +1,23 @@
+.productGrid {
+  display: grid;
+  
+  /* Mobile-First: 2 colunas */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Tablet: 3 colunas */
+@media (min-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* Desktop: 5 colunas (Conforme solicitado) */
+@media (min-width: 1200px) {
+  .productGrid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2rem;
+  }
+}

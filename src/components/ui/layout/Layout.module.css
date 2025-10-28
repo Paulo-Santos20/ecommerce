@@ -1,0 +1,14 @@
+/* Princípio de CSS Modules: Estilos com escopo local */
+.layoutWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Removemos o .header (agora está em Header.module.css) */
+
+.mainContent {
+  flex: 1; /* Empurra o footer para baixo */
+  /* Removemos o padding, pois as seções e o container já controlam */
+}
+

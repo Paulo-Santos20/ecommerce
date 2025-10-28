@@ -1,0 +1,87 @@
+.carouselWrapper {
+  padding-bottom: 2rem; /* Espaço abaixo de tudo */
+}
+
+.productSwiper {
+  padding-bottom: 3rem; /* Espaço para as bolinhas de paginação */
+  /* Remove o padding padrão do container para o Swiper ir de borda a borda */
+  width: 100%;
+  padding-left: 5%;
+  padding-right: 5%;
+  box-sizing: border-box;
+}
+
+/* --- Estilização da Paginação (Bolinhas) --- */
+.swiperPagination {
+  /* Posicionamento das bolinhas */
+  position: static; /* Tira do 'absolute' padrão */
+  margin-top: 1.5rem; /* Joga para baixo do carrossel */
+  text-align: center;
+}
+
+/* Estilo global para as bolinhas do Swiper (sobrescreve o padrão) */
+:global(.productSwiper .swiper-pagination-bullet) {
+  background-color: var(--color-border);
+  opacity: 1;
+  width: 10px;
+  height: 10px;
+  transition: all 0.2s ease;
+}
+
+:global(.productSwiper .swiper-pagination-bullet-active) {
+  background-color: var(--color-primary);
+  width: 25px; /* Efeito "pílula" */
+  border-radius: 5px;
+}
+
+/* --- Estilização das Setas (Navegação) --- */
+/* Esconde setas no mobile por padrão */
+:global(.productSwiper .swiper-button-next),
+:global(.productSwiper .swiper-button-prev) {
+  display: none;
+}
+
+
+/* =========================================
+=== MEDIA QUERY - TABLET E DESKTOP (768px+) ===
+=========================================
+*/
+@media (min-width: 768px) {
+  .productSwiper {
+    /* No desktop, usa o padding padrão do .container */
+    padding-left: 0;
+    padding-right: 0;
+  }
+  
+  /* Mostra as setas */
+  :global(.productSwiper .swiper-button-next),
+  :global(.productSwiper .swiper-button-prev) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-dark);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    
+    transition: background-color 0.2s ease;
+    top: 45%; /* Centraliza verticalmente no card */
+  }
+  
+  :global(.productSwiper .swiper-button-next:hover),
+  :global(.productSwiper .swiper-button-prev:hover) {
+    background-color: var(--color-highlight);
+  }
+
+  /* Ajusta o posicionamento (fora do container) */
+  :global(.productSwiper .swiper-button-prev) {
+    left: -15px;
+  }
+  :global(.productSwiper .swiper-button-next) {
+    right: -15px;
+  }
+}

@@ -1,0 +1,105 @@
+.homePage {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Título de Seção Padrão */
+.sectionTitle {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--color-text-dark); /* Cor escura padrão */
+  text-align: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1rem;
+}
+
+/* Wrapper de Seção Padrão */
+.homeSection {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* --- Estilos Específicos da Seção --- */
+
+/* 2. Seção de Categorias */
+.categorySection {
+  background-color: var(--color-highlight);
+  border-radius: 8px;
+  padding-top: 3rem;
+  padding-bottom: 2rem;
+}
+
+/* 3. Seção de Banners Promo */
+.promoSection {
+  background-color: var(--color-background); /* Fundo sutil */
+  padding: 3rem 0;
+}
+.promoSection .sectionTitle {
+  color: var(--color-primary); /* Destaque no título */
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* 4. Seção de Produtos (Mais Vendidos) */
+.productSection {
+  background-color: var(--color-highlight);
+  padding-top: 3rem;
+}
+.productSection .sectionTitle {
+  color: var(--color-primary); /* Destaque no título */
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* 5. Seção "Preços Baixos" (NOVO) */
+.saleSection {
+  background-color: var(--color-background); /* Fundo sutil para diferenciar */
+  padding-top: 3rem;
+  border-top: 1px solid var(--color-border);
+}
+.saleSection .sectionTitle {
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+
+/* Mobile-First */
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 2.4rem;
+    margin-bottom: 2rem;
+  }
+  .homeSection {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .promoSection {
+     padding: 2rem 0;
+  }
+}
+
+/* ... (todo o CSS anterior) ... */
+
+/* 4. Seção de Produtos (Mais Vendidos) */
+.productSection {
+  background-color: var(--color-highlight);
+  padding-top: 3rem;
+  /* (NOVO) Adiciona espaço no final da grade */
+  padding-bottom: 3rem; 
+}
+.productSection .sectionTitle {
+  color: var(--color-primary); /* Destaque no título */
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* 5. Seção "Preços Baixos" */
+.saleSection {
+  background-color: var(--color-background); /* Fundo sutil para diferenciar */
+  padding-top: 3rem;
+  border-top: 1px solid var(--color-border);
+}
+.saleSection .sectionTitle {
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* ... (media queries) ... */

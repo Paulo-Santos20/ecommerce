@@ -1,0 +1,132 @@
+.promoBannersSection {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  background-color: var(--color-background); /* Fundo sutil */
+  margin-top: 2rem;
+}
+
+.sectionTitle {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.bannerGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem; /* Espaço entre as linhas de banners */
+}
+
+.bannerRow {
+  display: flex;
+  flex-direction: column; /* Mobile-First: Banners empilhados */
+  gap: 1.5rem; /* Espaço entre os banners na coluna */
+}
+
+.promoBanner {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-grow: 1; /* Ocupa o espaço disponível no mobile */
+}
+
+.promoBanner:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.bannerImage {
+  width: 100%;
+  height: 200px; /* Altura fixa no mobile para consistência */
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.promoBanner:hover .bannerImage {
+  transform: scale(1.03);
+}
+
+.bannerOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* Overlay escuro semi-transparente */
+  color: var(--color-highlight);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 1.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.promoBanner:hover .bannerOverlay {
+  opacity: 1;
+}
+
+.bannerOverlay h3 {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.bannerOverlay p {
+  font-size: 1.6rem;
+  font-weight: 500;
+}
+
+/* Tamanhos dos banners (apenas para desktop) */
+.banner60 {
+  /* No mobile, flex-grow fará com que ocupe 100% */
+}
+.banner30 {
+  /* No mobile, flex-grow fará com que ocupe 100% */
+}
+
+/*
+=========================================
+=== MEDIA QUERY - DESKTOP (992px+) ===
+=========================================
+*/
+@media (min-width: 992px) {
+  .sectionTitle {
+    font-size: 3.2rem;
+  }
+  
+  .bannerRow {
+    flex-direction: row; /* Desktop: Banners lado a lado */
+    justify-content: center; /* Centraliza a linha de banners */
+    gap: 2rem; /* Espaço entre os banners na linha */
+    align-items: stretch; /* Garante que os banners da linha tenham a mesma altura */
+  }
+
+  .bannerImage {
+    height: 300px; /* Altura maior no desktop */
+  }
+
+  .banner60 {
+    flex: 0 0 calc(60% - 1rem); /* 60% da largura, descontando metade do gap */
+    max-width: calc(60% - 1rem);
+  }
+  .banner30 {
+    flex: 0 0 calc(30% - 1rem); /* 30% da largura, descontando metade do gap */
+    max-width: calc(30% - 1rem);
+  }
+}
+
+/* Ajustes para telas médias (tablet) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .bannerImage {
+    height: 250px; /* Altura intermediária para tablets */
+  }
+}

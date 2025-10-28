@@ -1,0 +1,100 @@
+.carouselSection {
+  width: 100%;
+  /* Remove qualquer padding do layout principal */
+  margin-bottom: 2rem; 
+}
+
+.heroSwiper {
+  position: relative;
+  width: 100%;
+  
+  /* --- Customização das Setas (Navegação) ---
+    Usamos variáveis CSS do Swiper para alinhar com nossa marca.
+  */
+  --swiper-navigation-color: var(--color-text-dark);
+  --swiper-navigation-size: 2rem; /* Tamanho do ícone da seta */
+}
+
+.slideLink {
+  display: block;
+}
+
+.slideImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  
+  /* Mobile-First: Proporção mais "quadrada" para mobile.
+    Ex: 4:3 (largura:altura)
+  */
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background-color: #f0f0f0; /* Placeholder enquanto carrega */
+}
+
+/* --- Estilização Global das Setas (UI/UX de Excelência) ---
+  Usamos :global() para estilizar os elementos internos do Swiper.
+*/
+
+/* Esconde as setas no Mobile-First (usuário usará o swipe) */
+:global(.swiper-button-next),
+:global(.swiper-button-prev) {
+  display: none;
+}
+
+/* --- Paginação (Bolinhas) ---
+  As bolinhas são importantes para a UX mobile.
+*/
+:global(.swiper-pagination-bullet) {
+  background-color: var(--color-highlight);
+  opacity: 0.7;
+  width: 10px;
+  height: 10px;
+}
+
+:global(.swiper-pagination-bullet-active) {
+  background-color: var(--color-primary);
+  opacity: 1;
+}
+
+/* =========================================
+=== MEDIA QUERY - TABLET E DESKTOP (769px+) ===
+=========================================
+*/
+@media (min-width: 769px) {
+  .slideImage {
+    /* Desktop: Proporção "wide" (ex: 16:4 ou 16:5).
+      Isso deixa o banner mais largo e baixo.
+    */
+    aspect-ratio: 16 / 5;
+  }
+
+  /* Mostra as setas no Desktop */
+  :global(.swiper-button-next),
+  :global(.swiper-button-prev) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* O visual "Marisa" (círculo branco semi-transparente) */
+    background-color: rgba(255, 255, 255, 0.8);
+    color: var(--color-text-dark);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+  
+  :global(.swiper-button-next:hover),
+  :global(.swiper-button-prev:hover) {
+    background-color: rgba(255, 255, 255, 1);
+  }
+
+  /* Ajusta o posicionamento (mais para dentro) */
+  :global(.swiper-button-prev) {
+    left: 20px;
+  }
+  :global(.swiper-button-next) {
+    right: 20px;
+  }
+}

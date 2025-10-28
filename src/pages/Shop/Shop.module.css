@@ -1,0 +1,36 @@
+.pageTitle {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.productsGrid {
+  display: grid;
+  /* Mobile-First: 2 colunas */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.error {
+  color: red;
+  font-size: 1.8rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+/* Tablet: 3 colunas */
+@media (min-width: 768px) {
+  .productsGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Desktop: 4 colunas */
+@media (min-width: 1024px) {
+  .productsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

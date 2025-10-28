@@ -1,0 +1,163 @@
+.checkoutPage {
+  margin-top: 2rem;
+}
+
+.title {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+}
+
+/* Mobile-First: tudo empilhado */
+.checkoutGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.formColumn {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.summaryColumn {
+  flex: 2;
+}
+
+.formSection {
+  background-color: var(--color-highlight);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+.formSection h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+/* Formulário de Endereço */
+.addressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column; /* Mobile-First */
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.formGroup label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.formGroup input {
+  font-size: 1.6rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+
+.error {
+  color: red;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+/* Simulação de Pagamento */
+.paymentSimulation {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 5px;
+  border: 1px dashed var(--color-border);
+}
+
+/* Resumo do Pedido (similar ao do Carrinho) */
+.orderSummary {
+  background-color: var(--color-highlight);
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  position: sticky; /* Fica fixo no scroll (desktop) */
+  top: 100px; /* 60px (header) + 40px (espaço) */
+}
+.orderSummary h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+.summaryItem span:first-child {
+  color: #555;
+  max-width: 70%;
+}
+.summaryItem span:last-child {
+  font-weight: 600;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.total {
+  font-size: 1.8rem;
+  margin-top: 1rem;
+}
+.total strong {
+  color: var(--color-text-dark);
+}
+
+.ctaButton {
+  width: 100%;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.8rem;
+  font-weight: 600;
+  padding: 1.5rem;
+  border-radius: 5px;
+  transition: all 0.2s ease;
+  text-align: center;
+  margin-top: 1rem;
+}
+.ctaButton:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+
+/* --- Desktop Layout --- */
+@media (min-width: 769px) {
+  .checkoutGrid {
+    flex-direction: row-reverse; /* Inverte a ordem visual */
+    align-items: flex-start;
+  }
+  
+  .formRow {
+    flex-direction: row;
+  }
+}

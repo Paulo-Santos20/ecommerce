@@ -1,0 +1,304 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--color-highlight);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* === Camada 1: Promo Bar === */
+.promoBar {
+  background-color: var(--color-primary); /* Vinho */
+  color: var(--color-highlight);
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 0.8rem 0;
+}
+.promoBar .container {
+  width: 100%; /* Garante que o container não restrinja */
+  padding: 0 5%;
+}
+
+/* === Camada 2: Main Header (Mobile-First) === */
+.mainHeader {
+  background-color: var(--color-highlight);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mainHeaderContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  position: relative; /* Para o logo centralizado */
+}
+
+.logo {
+  font-size: 2.4rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  /* Centraliza o logo no mobile */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mobileIcon {
+  font-size: 2.2rem;
+  color: var(--color-text-dark);
+}
+
+.rightIcons {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.cartIcon {
+  font-size: 2.2rem;
+  color: var(--color-text-dark);
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cartCount {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  background-color: red; /* Destaque forte */
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Esconde elementos de Desktop no Mobile */
+.searchBarDesktop,
+.desktopUserLink,
+.desktopCartText,
+.categoryNav {
+  display: none;
+}
+
+/* === Camada 3: Category Nav === */
+/* (Escondida no mobile por padrão) */
+
+/* === Overlays Mobile === */
+.mobileBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+}
+
+.navMobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 80%;
+  max-width: 320px;
+  height: 100vh;
+  background-color: var(--color-highlight);
+  z-index: 1002;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+}
+.navMobile.isOpen {
+  transform: translateX(0);
+}
+
+.navMobileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.navMobileHeader strong {
+  font-size: 1.8rem;
+  color: var(--color-primary);
+}
+.navMobileHeader button {
+  font-size: 2rem;
+}
+
+.navMobileContent {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.navMobileLink {
+  font-size: 1.6rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.navMobileLink:last-child {
+  border-bottom: none;
+}
+.navMobileDivider {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+}
+
+/* Pesquisa Mobile */
+.searchMobile {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* Mesma altura do header */
+  background-color: var(--color-highlight);
+  z-index: 1001;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+.searchMobile.isOpen {
+  transform: translateY(0);
+}
+.searchMobile .container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+.searchMobileBack {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+.searchMobile input {
+  flex: 1;
+  font-size: 1.6rem;
+  border: none;
+  outline: none;
+}
+.searchMobileSubmit {
+  font-size: 2rem;
+  color: var(--color-primary);
+}
+
+
+/*
+=========================================
+=== MEDIA QUERY - DESKTOP (992px+) ===
+=========================================
+*/
+@media (min-width: 992px) {
+  .header {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Esconde ícones mobile */
+  .mobileIcon,
+  .mobileSearchIcon {
+    display: none;
+  }
+  
+  /* Camada 2: Ajustes Desktop */
+  .mainHeaderContent {
+    height: 80px;
+  }
+  
+  .logo {
+    position: static;
+    transform: none;
+    font-size: 2.8rem;
+    margin-right: 2rem;
+  }
+
+  /* Mostra Barra de Pesquisa */
+  .searchBarDesktop {
+    display: flex;
+    flex: 1; /* Ocupa o espaço */
+    max-width: 600px;
+    height: 44px;
+  }
+  .searchBarDesktop input {
+    width: 100%;
+    font-size: 1.5rem;
+    padding: 0 1.5rem;
+    border: 1px solid var(--color-border);
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+  }
+  .searchBarDesktop button {
+    background-color: var(--color-primary);
+    color: var(--color-highlight);
+    width: 50px;
+    font-size: 1.8rem;
+    border-radius: 0 5px 5px 0;
+  }
+
+  /* Mostra Links de Usuário */
+  .rightIcons {
+    gap: 2.5rem;
+    margin-left: 2rem; /* Separa do search */
+  }
+
+  .desktopUserLink {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.5rem;
+  }
+  .desktopUserLink svg {
+    font-size: 2.2rem;
+  }
+
+  .cartIcon {
+    gap: 0.8rem;
+    font-size: 1.5rem;
+  }
+  .cartIcon svg {
+    font-size: 2.2rem;
+  }
+  .desktopCartText {
+    display: block;
+  }
+  .cartCount {
+    right: 25px; /* Ajusta posição do contador */
+  }
+
+  /* Camada 3: Mostra Navegação de Categoria */
+  .categoryNav {
+    display: block;
+    background-color: var(--color-highlight);
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .categoryNavContent {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+  }
+  
+  .categoryLink {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-dark);
+    padding: 1.2rem 0;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .categoryLink:hover {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+  
+  .activeCategory {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+  }
+}
