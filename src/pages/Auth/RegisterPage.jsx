@@ -10,9 +10,15 @@ import styles from './Auth.module.css';
 
 // Esquema de validação de Cadastro
 const registerSchema = z.object({
-  displayName: z.string().min(3, "O nome é obrigatório."),
+  displayName: z.string().min(3, "O nome deve ter pelo menos 3 caracteres."),
   email: z.string().email("E-mail inválido."),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
+  confirmPassword: z.string()
+})
+// Validação de "Confirmar Senha" (UI/UX de Excelência)
+.refine(data => data.password === data.confirmPassword, {
+  message: "As senhas não conferem.",
+  path: ["confirmPassword"], // Onde o erro deve aparecer
 });
 
 const RegisterPage = () => {
@@ -36,7 +42,7 @@ const RegisterPage = () => {
         displayName: data.displayName,
       });
 
-      // 3. Criar o documento do usuário no Firestore
+      // 3. Criar o documento do usuário no Firestore (Arquitetura Escalável)
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, {
         displayName: data.displayName,
@@ -45,14 +51,15 @@ const RegisterPage = () => {
         historicoPedidos: [],
       });
 
-      // TODO: Chamar syncCart() do useCartStore
-      navigate('/'); // Redireciona para Home
+      // TODO: Sincronizar carrinho anônimo (localStorage) com o Firestore.
+      
+      navigate('/loja'); // Redireciona para a loja
     } catch (error) {
       console.error("Erro no cadastro:", error);
       if (error.code === 'auth/email-already-in-use') {
         setAuthError("Este e-mail já está em uso.");
       } else {
-        setAuthError("Falha ao criar a conta.");
+        setAuthError("Falha ao criar a conta. Tente novamente.");
       }
     }
   };
@@ -62,28 +69,35 @@ const RegisterPage = () => {
       <div className={styles.authContainer}>
         <h1 className={styles.title}>Criar Conta</h1>
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+          
           <div className={styles.formGroup}>
             <label htmlFor="displayName">Nome</label>
             <input id="displayName" type="text" {...register("displayName")} />
-            {errors.displayName && <span className={styles.error}>{errors.displayName.message}</span>}
+            {errors.displayName && <span className={styles.validationError}>{errors.displayName.message}</span>}
           </div>
 
           <div className={styles.formGroup}>
             <label htmlFor="email">E-mail</label>
             <input id="email" type="email" {...register("email")} />
-            {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+            {errors.email && <span className={styles.validationError}>{errors.email.message}</span>}
           </div>
           
           <div className={styles.formGroup}>
-            <label htmlFor="password">Senha</label>
+            <label htmlFor="password">Senha (mínimo 6 caracteres)</label>
             <input id="password" type="password" {...register("password")} />
-            {errors.password && <span className={styles.error}>{errors.password.message}</span>}
+            {errors.password && <span className={styles.validationError}>{errors.password.message}</span>}
           </div>
 
-          {authError && <span className={styles.error}>{authError}</span>}
+          <div className={styles.formGroup}>
+            <label htmlFor="confirmPassword">Confirmar Senha</label>
+            <input id="confirmPassword" type="password" {...register("confirmPassword")} />
+            {errors.confirmPassword && <span className={styles.validationError}>{errors.confirmPassword.message}</span>}
+          </div>
+
+          {authError && <span className={styles.authError}>{authError}</span>}
 
           <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
-            {isSubmitting ? 'Criando...' : 'Cadastrar'}
+            {isSubmitting ? 'Criando conta...' : 'Cadastrar'}
           </button>
         </form>
 

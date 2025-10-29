@@ -1,0 +1,64 @@
+.questionForm {
+  margin-top: 1.5rem;
+  padding: 2rem 2.5rem;
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+.questionForm h4 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-primary);
+}
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+.formGroup label {
+  display: block;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+.formGroup textarea {
+  width: 100%;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 1.5rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(128,0,0, 0.1);
+}
+
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  padding: 1.2rem 1.8rem;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1.6rem;
+  cursor: pointer;
+  width: 100%; /* Mobile-first */
+  transition: opacity 0.2s;
+}
+.submitButton:hover {
+  opacity: 0.9;
+}
+.submitButton:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+@media (min-width: 768px) {
+  .submitButton {
+    width: auto; /* Largura automática no desktop */
+  }
+}

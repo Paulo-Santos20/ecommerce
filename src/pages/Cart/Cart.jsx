@@ -14,16 +14,18 @@ const formatCurrency = (value) => {
 
 const Cart = () => {
   const navigate = useNavigate();
-  // Seletores do Zustand (Performance: só re-renderiza se estas partes mudarem)
+  
+  // Seleciona os estados e ações do store individualmente
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
 
-  // Calcula o total
-  const subtotal = items.reduce((acc, item) => acc + item.preco * item.quantity, 0);
+  // --- CORREÇÃO DO BUG R$ NaN ---
+  // A propriedade agora é 'price', não 'preco'.
+  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  // --------------------------------
 
   const handleCheckout = () => {
-    // TODO: Adicionar verificação de login (useAuthStore)
     navigate('/checkout');
   };
 
@@ -43,7 +45,6 @@ const Cart = () => {
     <div className={`container ${styles.cartPage}`}>
       <h1 className={styles.title}>Meu Carrinho</h1>
 
-      {/* Layout de Grid (Mobile-First otimizado) */}
       <div className={styles.cartGrid}>
         {/* Lista de Itens */}
         <div className={styles.cartItems}>
@@ -53,20 +54,42 @@ const Cart = () => {
               
               <div className={styles.itemInfo}>
                 <h3 className={styles.itemName}>{item.nome}</h3>
-                <span className={styles.itemPrice}>{formatCurrency(item.preco)}</span>
+                {/* Mostra variante se existir */}
+                {(item.color || item.size) && (
+                  <small className={styles.itemVariant}>{item.color} / {item.size}</small>
+                )}
+                <span className={styles.itemPrice}>{formatCurrency(item.price)}</span>
               </div>
               
+              {/* Botões de Quantidade */}
               <div className={styles.itemQuantity}>
-                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className={styles.quantityBtn}>-</button>
+                <button 
+                  onClick={() => updateQuantity(item.id, item.quantity - 1)} 
+                  className={styles.quantityBtn}
+                  aria-label="Diminuir quantidade"
+                >
+                  -
+                </button>
                 <span>{item.quantity}</span>
-                <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className={styles.quantityBtn}>+</button>
+                <button 
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)} 
+                  className={styles.quantityBtn}
+                  aria-label="Aumentar quantidade"
+                >
+                  +
+                </button>
               </div>
               
+              {/* Total do Item */}
               <span className={styles.itemTotal}>
-                {formatCurrency(item.preco * item.quantity)}
+                {formatCurrency(item.price * item.quantity)}
               </span>
               
-              <button onClick={() => removeItem(item.id)} className={styles.removeBtn}>
+              <button 
+                onClick={() => removeItem(item.id)} 
+                className={styles.removeBtn}
+                aria-label="Remover item"
+              >
                 <FaTrash />
               </button>
             </div>

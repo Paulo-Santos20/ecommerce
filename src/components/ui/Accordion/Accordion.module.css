@@ -1,0 +1,37 @@
+.accordionItem {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1.5rem 0.5rem;
+  text-align: left;
+}
+
+.accordionTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.accordionIcon {
+  font-size: 1.6rem;
+  color: var(--color-primary);
+}
+
+.accordionContent {
+  padding: 0.5rem 0.5rem 2rem 0.5rem;
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: #555;
+}
+/* Estiliza parágrafos dentro do accordion */
+.accordionContent p {
+  margin-bottom: 1rem;
+}
+.accordionContent p:last-child {
+  margin-bottom: 0;
+}

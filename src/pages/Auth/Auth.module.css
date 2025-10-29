@@ -1,8 +1,11 @@
+/* Princípio: UI/UX de Excelência. 
+   Um layout limpo e focado para autenticação. */
 .authPage {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--header-height)); /* Desconta o header se houver */
+  padding: 4rem 0;
   background-color: var(--color-background);
 }
 
@@ -47,9 +50,22 @@
   border-radius: 5px;
 }
 
-.error {
+/* Erro de validação (Zod) */
+.validationError {
   color: red;
   font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+/* Erro de autenticação (Firebase) */
+.authError {
+  color: red;
+  background-color: #ffebee;
+  border: 1px solid #e57373;
+  border-radius: 5px;
+  padding: 1rem;
+  font-size: 1.4rem;
+  text-align: center;
   margin-top: 0.5rem;
 }
 
@@ -68,6 +84,13 @@
   cursor: not-allowed;
 }
 
+.divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #888;
+  font-weight: 500;
+}
+
 .googleButton {
   background-color: #4285F4;
   color: white;
@@ -80,15 +103,10 @@
   opacity: 0.9;
 }
 
-.divider {
-  text-align: center;
-  margin: 1.5rem 0;
-  color: #888;
-}
-
 .switchLink {
   text-align: center;
   font-size: 1.5rem;
+  margin-top: 2rem;
 }
 
 .switchLink a {

@@ -12,7 +12,7 @@ import styles from './Auth.module.css';
 // Esquema de validação de Login
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido."),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
+  password: z.string().min(1, "A senha é obrigatória."), // Mínimo de 1 só para o login
 });
 
 const LoginPage = () => {
@@ -23,13 +23,16 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  // Função para garantir que o usuário existe no Firestore
+  /**
+   * Garante que um usuário (especialmente de login social) tenha um
+   * documento na coleção 'users'. (Arquitetura Escalável)
+   */
   const ensureUserInFirestore = async (user) => {
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      // Se não existe (ex: login social pela 1ª vez), cria o documento
+      // Se não existe, cria o documento
       await setDoc(userRef, {
         displayName: user.displayName || user.email,
         email: user.email,
@@ -46,11 +49,13 @@ const LoginPage = () => {
       const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       await ensureUserInFirestore(userCredential.user);
       
-      // TODO: Chamar syncCart() do useCartStore
-      navigate('/'); // Redireciona para Home
+      // TODO: Sincronizar carrinho anônimo (localStorage) com o Firestore.
+      
+      navigate('/loja'); // Redireciona para a loja
     } catch (error) {
       console.error("Erro no login:", error);
-      setAuthError("E-mail ou senha inválidos.");
+      // UI/UX de Excelência: Mensagem clara para o usuário
+      setAuthError("E-mail ou senha inválidos. Por favor, tente novamente.");
     }
   };
 
@@ -61,32 +66,34 @@ const LoginPage = () => {
       const result = await signInWithPopup(auth, googleProvider);
       await ensureUserInFirestore(result.user);
       
-      // TODO: Chamar syncCart() do useCartStore
-      navigate('/'); // Redireciona para Home
+      // TODO: Sincronizar carrinho anônimo (localStorage) com o Firestore.
+      
+      navigate('/loja'); // Redireciona para a loja
     } catch (error) {
       console.error("Erro no login com Google:", error);
-      setAuthError("Falha ao autenticar com o Google.");
+      setAuthError("Falha ao autenticar com o Google. Tente novamente.");
     }
   };
 
   return (
     <div className={styles.authPage}>
       <div className={styles.authContainer}>
-        <h1 className={styles.title}>Login</h1>
+        <h1 className={styles.title}>Entrar</h1>
         <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+          
           <div className={styles.formGroup}>
             <label htmlFor="email">E-mail</label>
             <input id="email" type="email" {...register("email")} />
-            {errors.email && <span className={styles.error}>{errors.email.message}</span>}
+            {errors.email && <span className={styles.validationError}>{errors.email.message}</span>}
           </div>
           
           <div className={styles.formGroup}>
             <label htmlFor="password">Senha</label>
             <input id="password" type="password" {...register("password")} />
-            {errors.password && <span className={styles.error}>{errors.password.message}</span>}
+            {errors.password && <span className={styles.validationError}>{errors.password.message}</span>}
           </div>
 
-          {authError && <span className={styles.error}>{authError}</span>}
+          {authError && <span className={styles.authError}>{authError}</span>}
 
           <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
             {isSubmitting ? 'Entrando...' : 'Entrar'}

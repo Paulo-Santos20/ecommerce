@@ -1,44 +1,47 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Layout from '../components/ui/layout/Layout';
+import Layout from '../components/layout/Layout'; // Importa o Layout com Header/Footer
 import Loading from '../components/ui/Loading/Loading';
 
-// --- Code Splitting (Performance Total) ---
-// As páginas só são carregadas quando o usuário acessa a rota.
+// --- Code Splitting ---
 const Home = lazy(() => import('../pages/Home/Home'));
 const Shop = lazy(() => import('../pages/Shop/Shop'));
 const ProductPage = lazy(() => import('../pages/ProductPage/ProductPage'));
 const Cart = lazy(() => import('../pages/Cart/Cart'));
 const Checkout = lazy(() => import('../pages/Checkout/Checkout'));
-const LoginPage = lazy(() => import('../pages/Auth/LoginPage'));
 const AdminProducts = lazy(() => import('../pages/Admin/AdminProducts'));
+const LoginPage = lazy(() => import('../pages/Auth/LoginPage'));
+const RegisterPage = lazy(() => import('../pages/Auth/RegisterPage'));
+const MyOrders = lazy(() => import('../pages/MyOrders/MyOrders'));
 
-/**
- * Gerenciador central de rotas da aplicação.
- * Utiliza Suspense para mostrar um 'Loading' enquanto os
- * componentes lazy (páginas) são carregados.
- */
 const AppRoutes = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        {/* Rotas Públicas com Layout (Header/Footer) */}
+        {/* --- TODAS AS ROTAS COM LAYOUT FICAM AQUI DENTRO --- */}
         <Route path="/" element={<Layout />}>
+          {/* Páginas Principais */}
           <Route index element={<Home />} />
           <Route path="loja" element={<Shop />} />
           <Route path="produto/:id" element={<ProductPage />} />
           <Route path="carrinho" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
           
-          {/* Rota de Admin (ainda não protegida) */}
+          {/* Páginas de Admin */}
           <Route path="admin" element={<AdminProducts />} />
+          
+          {/* --- ROTAS DE AUTENTICAÇÃO MOVIDAS PARA CÁ --- */}
+          <Route path="login" element={<LoginPage />} />
+          <Route path="cadastro" element={<RegisterPage />} />
+
+          {/* TODO: Adicionar rota 404 aqui dentro também */}
+          {/* <Route path="*" element={<NotFound />} /> */}
+
+          <Route path="meus-pedidos" element={<MyOrders />} /> {/* 2. Adicionar a rota */}
         </Route>
 
-        {/* Rotas sem o Layout (ex: Login, Cadastro) */}
-        <Route path="/login" element={<LoginPage />} />
+        {/* Rotas SEM Layout (se houver alguma no futuro) iriam aqui fora */}
         
-        {/* TODO: Adicionar rota 404 */}
-        {/* <Route path="*" element={<NotFound />} /> */}
       </Routes>
     </Suspense>
   );

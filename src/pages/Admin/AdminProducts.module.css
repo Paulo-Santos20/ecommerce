@@ -100,3 +100,37 @@
     align-items: center;
   }
 }
+
+
+.variantTag {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background-color: #f0f0f0;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  margin: 0.2rem;
+  font-size: 1.3rem;
+}
+
+/* ... (estilos anteriores) ... */
+
+/* Novo estilo para a tabela */
+.variantTag {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background-color: #f0f0f0;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  margin: 0.2rem;
+  font-size: 1.3rem;
+  white-space: nowrap;
+}
+
+.iconSale {
+  color: green;
+  font-size: 1.8rem;
+}
+.iconNoSale {
+  color: #ccc;
+  font-size: 1.8rem;
+}

@@ -1,0 +1,267 @@
+.myOrdersPage {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.title {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+/* --- Estado "Sem Pedidos" --- */
+.noOrders {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: var(--color-highlight);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.noOrders h2 {
+  font-size: 2.4rem;
+  color: var(--color-text-dark);
+}
+.noOrders p {
+  font-size: 1.6rem;
+  margin: 1rem 0 2rem 0;
+  color: #555;
+}
+.ctaButton { 
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.8rem;
+  font-weight: 600;
+  padding: 1.2rem 3rem;
+  border-radius: 5px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+}
+.ctaButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Lista de Pedidos --- */
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.orderCard {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  overflow: hidden; 
+}
+
+/* Cabeçalho do Card */
+.orderHeader {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Mobile: 2 colunas */
+  gap: 1rem 1.5rem; /* Gap vertical e horizontal */
+  padding: 1.5rem 2rem;
+  background-color: #f9f9f9;
+  border-bottom: 1px solid var(--color-border);
+}
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+.headerInfo span {
+  font-size: 1.3rem;
+  color: #555;
+  margin-bottom: 0.3rem;
+}
+.headerInfo strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.statusWrapper {
+  grid-column: span 2; /* Ocupa a linha toda no mobile */
+  justify-self: start;
+}
+.statusBadge {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border-radius: 15px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+/* Cores do Status */
+.statusDefault { background-color: #e0e0e0; color: #333; }
+.statusProcessing { background-color: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+.statusShipped { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
+.statusDelivered { background-color: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+.statusCancelled { background-color: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
+
+/* Itens dentro do Pedido */
+.orderItems {
+  padding: 1rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.orderItem {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: space-between; /* Empurra o botão "Avaliar" para a direita */
+  flex-wrap: wrap; /* Permite quebrar em telas pequenas */
+}
+.itemImage {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+.itemDetails {
+  flex-grow: 1;
+}
+.itemDetails p {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem 0;
+}
+.itemDetails small {
+  font-size: 1.3rem;
+  color: #555;
+  display: block;
+}
+.itemDetails span {
+  font-size: 1.4rem;
+  color: var(--color-text-dark);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* --- REQUISITO: Botão de Avaliar --- */
+.reviewButton {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 5px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap; /* Impede quebra de linha */
+}
+.reviewButton:hover {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+
+/* --- REQUISITO: Painel de Detalhes da Entrega --- */
+.deliveryDetails {
+  padding: 1.5rem 2rem;
+  background-color: #fdfdfd;
+  border-top: 1px dashed var(--color-border);
+}
+.deliveryDetails h4 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 1rem;
+}
+.detailsContent {
+  display: flex;
+  flex-direction: column; /* Mobile-first */
+  gap: 1.5rem;
+}
+.addressInfo, .trackingInfo {
+  flex: 1;
+}
+.addressInfo strong, .trackingInfo strong {
+  font-size: 1.4rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.addressInfo p, .trackingInfo p {
+  font-size: 1.4rem;
+  color: #555;
+  margin: 0.2rem 0;
+  line-height: 1.5;
+}
+.trackingCode {
+  font-weight: 700;
+  color: var(--color-primary);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+
+/* --- REQUISITO: Rodapé de Ações do Pedido --- */
+.orderFooter {
+  display: flex;
+  flex-direction: column; /* Mobile-first */
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--color-border);
+  background-color: #f9f9f9;
+}
+.footerButton {
+  background-color: transparent;
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-border);
+  padding: 1rem 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center; /* Centraliza no mobile */
+  gap: 0.8rem;
+  text-decoration: none; /* Para o <a> do WhatsApp */
+}
+.footerButton:hover {
+  background-color: #f0f0f0;
+  border-color: #aaa;
+}
+.helpButton {
+  color: #25D366; /* Cor do WhatsApp */
+  border-color: #25D366;
+}
+.helpButton:hover {
+  background-color: #e8f5e9;
+  border-color: #25D366;
+}
+
+
+/* --- Media Queries (Responsividade) --- */
+@media (min-width: 768px) {
+  .title {
+    font-size: 3.2rem;
+  }
+  /* Desktop: 4 colunas */
+  .orderHeader {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .statusWrapper {
+    grid-column: auto; /* Volta ao normal */
+    justify-self: end;
+    align-self: center;
+  }
+  .orderFooter {
+    flex-direction: row; /* Lado a lado */
+    justify-content: flex-end; /* Alinha à direita */
+  }
+  .detailsContent {
+    flex-direction: row; /* Lado a lado */
+  }
+}

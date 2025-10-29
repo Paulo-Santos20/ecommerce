@@ -20,6 +20,27 @@
   margin-top: 3rem;
 }
 
+/* Novo estilo para quando não há produtos */
+.emptyShop {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: var(--color-highlight);
+  border-radius: 8px;
+}
+.emptyShop h2 {
+  font-size: 2.4rem;
+  color: var(--color-primary);
+}
+.emptyShop p {
+  font-size: 1.6rem;
+  margin-top: 1rem;
+}
+.emptyShop a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 /* Tablet: 3 colunas */
 @media (min-width: 768px) {
   .productsGrid {

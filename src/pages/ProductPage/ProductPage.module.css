@@ -1,161 +1,609 @@
-/* Mobile-First: stack vertical */
-.productGrid {
+.pageWrapper {
+  padding-bottom: 3rem;
+}
+
+/* Mobile-First: 1 coluna */
+.pageLayout {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  margin-top: 2rem;
+  padding-top: 2rem;
 }
 
-/* Coluna de Imagens */
-.imageColumn {
+.galleryColumn {
   width: 100%;
 }
 
-.mainImageWrapper {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background-color: #f0f0f0;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-}
-
-.mainImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.thumbnailGrid {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-  overflow-x: auto; /* Permite scroll horizontal nas miniaturas */
-}
-
-.thumbnail {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 5px;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: border-color 0.2s;
-}
-.thumbnail:hover {
-  border-color: var(--color-border);
-}
-
-.activeThumbnail {
-  border-color: var(--color-primary);
-}
-
-/* Coluna de Informações */
 .infoColumn {
   width: 100%;
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 2.8rem;
   font-weight: 700;
   color: var(--color-text-dark);
-  margin-bottom: 1rem;
+  line-height: 1.2;
 }
 
-.priceContainer {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.refCode {
+  font-size: 1.4rem;
+  color: #888;
+  display: block;
+  margin-top: 0.5rem;
 }
 
+/* --- Preços --- */
+.priceSection {
+  margin: 1.5rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
 .oldPrice {
   font-size: 1.8rem;
   color: #888;
   text-decoration: line-through;
+  margin-right: 1rem;
 }
-
 .price {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 700;
   color: var(--color-primary);
 }
-
-.description {
+.installments {
   font-size: 1.6rem;
-  line-height: 1.6;
+  color: var(--color-text-dark);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* --- Seletores (Cor e Tamanho) --- */
+.selectorGroup {
   margin-bottom: 2rem;
 }
-
-.quantitySelector {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.quantityBtn {
-  width: 40px;
-  height: 40px;
-  font-size: 2rem;
-  border: 1px solid var(--color-border);
-  background-color: #f9f9f9;
-}
-.quantityBtn:hover {
-  background-color: #f0f0f0;
-}
-
-.quantityDisplay {
-  width: 50px;
-  height: 40px;
-  font-size: 1.8rem;
+.selectorGroup label {
+  font-size: 1.6rem;
   font-weight: 600;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.colorSwatches {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
+  gap: 1rem;
+}
+.swatch {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.activeSwatch {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--color-primary);
 }
 
-.stock {
+.sizeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.sizeBtn {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+.sizeBtn:hover {
+  border-color: var(--color-text-dark);
+}
+.activeSize {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+
+.errorText {
+  color: red;
   font-size: 1.4rem;
-  color: #555;
-  margin-bottom: 2rem;
+  margin-top: 1rem;
+  display: block;
 }
 
-.addToCartButton {
-  width: 100%;
+/* --- Botões de Ação --- */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.btnAddToCart {
+  flex: 1; /* Ocupa a maior parte */
   background-color: var(--color-primary);
   color: var(--color-highlight);
   font-size: 1.8rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 1.5rem;
   border-radius: 5px;
+  text-align: center;
   transition: all 0.2s ease;
 }
-.addToCartButton:hover {
+.btnAddToCart:hover {
   opacity: 0.9;
 }
-.addToCartButton:disabled {
-  background-color: #aaa;
-  cursor: not-allowed;
+.btnFavorite {
+  font-size: 2rem;
+  padding: 0 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: 5px;
+  color: var(--color-text-dark);
+}
+.btnFavorite:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
 }
 
-/* Desktop: layout em colunas */
-@media (min-width: 769px) {
-  .productGrid {
-    flex-direction: row;
+/* --- Frete --- */
+.shippingCalculator {
+  margin-top: 2rem;
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 5px;
+}
+.shippingCalculator label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.shippingForm {
+  display: flex;
+  margin-top: 1rem;
+}
+.shippingForm input {
+  flex: 1;
+  font-size: 1.6rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px 0 0 5px;
+}
+.shippingForm button {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 0 1.5rem;
+  border-radius: 0 5px 5px 0;
+  background-color: var(--color-text-dark);
+  color: var(--color-highlight);
+}
+
+/* --- Detalhes (Accordion) --- */
+.detailsSection {
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+/* --- Produtos Relacionados --- */
+.relatedSection {
+  background-color: var(--color-background);
+  padding: 3rem 0;
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+}
+.relatedTitle {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+  margin-bottom: 2.5rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+/* =========================================
+=== MEDIA QUERY - DESKTOP (992px+) ===
+=========================================
+*/
+@media (min-width: 992px) {
+  .pageLayout {
+    flex-direction: row; /* Layout em 2 colunas */
     gap: 4rem;
   }
   
-  .imageColumn {
-    width: 50%;
+  .galleryColumn {
+    width: 55%; /* Coluna da esquerda */
+    position: sticky; /* Efeito "grudento" */
+    top: 100px; /* (Altura do Header + espaço) */
+    align-self: flex-start; /* Alinha no topo */
   }
   
   .infoColumn {
-    width: 50%;
+    width: 45%; /* Coluna da direita */
   }
   
-  .addToCartButton {
-    max-width: 300px;
+  .title {
+    font-size: 3.2rem;
+  }
+  
+  .relatedTitle {
+    font-size: 2.8rem;
+  }
+}
+
+
+.title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  line-height: 1.2;
+}
+
+.saleTag {
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+/* --- Preços --- */
+.priceSection {
+  margin: 1.5rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.oldPrice {
+  font-size: 1.8rem;
+  color: #888;
+  text-decoration: line-through;
+  margin-right: 1rem;
+}
+.price {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.installments {
+  font-size: 1.6rem;
+  color: var(--color-text-dark);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* --- Seletores (Cor e Tamanho) --- */
+.selectorGroup {
+  margin-bottom: 2rem;
+}
+.selectorGroup label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Cor Swatches */
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.swatch {
+  font-size: 1.4rem; /* Um pouco menor para caber mais */
+  font-weight: 500;
+  padding: 0.8rem 1.2rem; /* Padding horizontal maior */
+  border: 2px solid var(--color-border);
+  border-radius: 5px;
+  transition: all 0.2s;
+  background-color: #fff;
+  min-width: 50px; /* Largura mínima */
+  text-align: center;
+  cursor: pointer; /* Adiciona cursor */
+}
+.swatch:hover {
+  border-color: var(--color-text-dark);
+}
+.activeSwatch {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+
+/* Tamanho Swatches */
+.sizeButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.sizeBtn {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: 5px;
+  transition: all 0.2s;
+  min-width: 50px;
+  text-align: center;
+}
+.sizeBtn:hover {
+  border-color: var(--color-text-dark);
+}
+.activeSize {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+
+.errorText {
+  color: red;
+  font-size: 1.4rem;
+  margin-top: 1rem;
+  display: block;
+}
+
+/* --- Botões de Ação --- */
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.btnAddToCart {
+  flex: 1;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.8rem;
+  font-weight: 700;
+  padding: 1.5rem;
+  border-radius: 5px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.btnAddToCart:hover {
+  opacity: 0.9;
+}
+.btnAddToCart:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+.btnFavorite {
+  font-size: 2rem;
+  padding: 0 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: 5px;
+  color: var(--color-text-dark);
+}
+
+/* ... (todos os estilos anteriores) ... */
+
+/* --- Estilos da Calculadora de Frete --- */
+.shippingCalculator {
+  margin-top: 2rem;
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-border); /* Adiciona borda sutil */
+}
+.shippingCalculator label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem; /* Espaço antes do input */
+}
+.shippingForm {
+  display: flex;
+}
+.shippingForm input {
+  flex: 1;
+  font-size: 1.6rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px 0 0 5px;
+  min-width: 150px; /* Garante espaço mínimo */
+}
+.shippingForm button {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 0 1.5rem;
+  border-radius: 0 5px 5px 0;
+  background-color: var(--color-text-dark);
+  color: var(--color-highlight);
+  border: 1px solid var(--color-text-dark); /* Borda consistente */
+  display: flex; /* Para o spinner */
+  align-items: center; /* Para o spinner */
+  justify-content: center; /* Para o spinner */
+  min-width: 100px; /* Espaço para o texto ou spinner */
+}
+.shippingForm button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Spinner de Loading */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Resultado/Erro do Frete */
+.shippingResult {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #e6f7ff; /* Fundo azul claro */
+  border: 1px solid #91d5ff; /* Borda azul */
+  border-radius: 4px;
+}
+.shippingResult p {
+    font-size: 1.4rem;
+    margin: 0.3rem 0;
+}
+.shippingError {
+  margin-top: 1rem;
+  color: red;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+
+/* --- Estilos das Novas Seções (Avaliações, Perguntas) --- */
+.detailsSection { /* Reutiliza o estilo de detalhes */
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 3rem; /* Aumenta o padding superior */
+  padding-bottom: 3rem;
+}
+
+
+/* ... (todos os estilos anteriores, incluindo os de Frete) ... */
+
+/* --- Estilos das Novas Seções (Avaliações, Perguntas) --- */
+.interactiveSection { /* Estilo comum para Reviews e QnA */
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.sectionTitle { /* Título (reutilizado de Home.module.css, mas incluído aqui para clareza) */
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Estilo para os placeholders */
+.placeholderBox {
+  border: 2px dashed var(--color-border);
+  padding: 2rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #888;
+  font-size: 1.6rem;
+  border-radius: 5px;
+}
+
+.loginPrompt {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 1.6rem;
+}
+.loginPrompt a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.askButton {
+    background-color: var(--color-primary);
+    color: var(--color-highlight);
+    padding: 1rem 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem; /* Espaço antes do texto "(em breve)" */
+}
+
+/* --- Ajuste no Tamanho dos Botões de Tamanho (Opcional) --- */
+.noSizeText {
+    font-size: 1.4rem;
+    color: #555;
+    font-style: italic;
+}
+
+/* --- Ajustes Finais de Responsividade --- */
+@media (max-width: 768px) {
+    .sectionTitle {
+        font-size: 2.2rem;
+    }
+    .interactiveSection {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+}
+.sectionTitle { /* Título para as novas seções */
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* ... (Mantenha todos os seus estilos anteriores como .pageWrapper, .galleryColumn, .swatch, .shippingCalculator, .relatedSection, etc.) ... */
+
+/* --- NOVOS ESTILOS para Seções Interativas (Reviews e Q&A) --- */
+.interactiveSection {
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding: 3rem 0;
+}
+
+.sectionTitle {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Remove o placeholder antigo */
+.placeholderBox {
+  display: none; 
+}
+
+/* Estilo para o prompt "Faça login" */
+.loginPrompt {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 1.6rem;
+  background-color: var(--color-background);
+  padding: 2rem;
+  border-radius: 5px;
+}
+.loginPrompt a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* Botão principal para "Deixar Avaliação" / "Fazer Pergunta" */
+.askButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  padding: 1.2rem 1.8rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1.5rem; /* Espaço após a lista */
+  cursor: pointer;
+  width: 100%; /* Ocupa 100% no mobile */
+  justify-content: center;
+}
+.askButton:hover {
+  opacity: 0.9;
+}
+
+/* Media Query para o botão */
+@media (min-width: 768px) {
+  .askButton {
+    width: auto; /* Largura automática no desktop */
   }
 }

@@ -2,23 +2,42 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 /**
- * Store global para o Carrinho de Compras.
- * - Usa 'persist' middleware para salvar no localStorage (requisito anônimo).
- * - Fornece ações para adicionar, remover e atualizar itens.
- * (UI/UX de Excelência: carrinho persiste entre sessões)
+ * Store global para o Carrinho de Compras (Atualizado).
+ * - Salva no localStorage (persist).
+ * - Lida com a nova arquitetura de variantes (ID único por cor/tamanho).
+ * (Princípios: Arquitetura Escalável, Performance Total)
  */
 export const useCartStore = create(
   persist(
     (set, get) => ({
-      items: [], // Array de { id, nome, preco, imagem, quantity }
+      /**
+       * O array 'items' agora espera objetos com esta estrutura:
+       * { 
+       * id: "productId-Color-Size", (ex: "p1-Vinho-P")
+       * productId: "p1",
+       * nome: "Camiseta",
+       * imagem: "url/...",
+       * price: 99.90,
+       * color: "Vinho",
+       * size: "P",
+       * quantity: 1 
+       * }
+       */
+      items: [], 
 
-      // Ação para adicionar um item ao carrinho
-      addItem: (product, quantity = 1) => {
+      /**
+       * Adiciona um item ao carrinho ou incrementa a quantidade.
+       * @param {object} productToAdd - O objeto da variante do produto.
+       * @param {number} quantity - A quantidade a adicionar.
+       */
+      addItem: (productToAdd, quantity = 1) => {
         const { items } = get();
-        const existingItemIndex = items.findIndex(item => item.id === product.id);
+        
+        // O ID de 'productToAdd' já é o ID único da variante (ex: "p1-Vinho-P")
+        const existingItemIndex = items.findIndex(item => item.id === productToAdd.id);
 
         if (existingItemIndex > -1) {
-          // Se o item já existe, atualiza a quantidade
+          // --- Item já existe: Atualiza a quantidade ---
           const updatedItems = items.map((item, index) =>
             index === existingItemIndex
               ? { ...item, quantity: item.quantity + quantity }
@@ -26,44 +45,53 @@ export const useCartStore = create(
           );
           set({ items: updatedItems });
         } else {
-          // Se é um item novo
+          // --- Item novo: Adiciona ao array ---
           const newItem = {
-            id: product.id,
-            nome: product.nome,
-            preco: product.preco,
-            imagem: product.imagens[0] || '',
-            quantity: quantity,
+            ...productToAdd,
+            quantity: quantity, // Adiciona a propriedade 'quantity'
           };
           set({ items: [...items, newItem] });
         }
       },
 
-      // Ação para remover um item
-      removeItem: (productId) => {
-        set({ items: get().items.filter(item => item.id !== productId) });
+      /**
+       * Remove um item completamente do carrinho.
+       * @param {string} cartItemId - O ID único da variante (ex: "p1-Vinho-P")
+       */
+      removeItem: (cartItemId) => {
+        set({ items: get().items.filter(item => item.id !== cartItemId) });
       },
 
-      // Ação para atualizar a quantidade
-      updateQuantity: (productId, quantity) => {
+      /**
+       * Atualiza a quantidade de um item específico.
+       * @param {string} cartItemId - O ID único da variante
+       * @param {number} quantity - A nova quantidade total
+       */
+      updateQuantity: (cartItemId, quantity) => {
         const newQuantity = Math.max(0, quantity); // Garante que não seja negativo
+        
         if (newQuantity === 0) {
-          get().removeItem(productId);
+          // Se a quantidade for 0, remove o item
+          get().removeItem(cartItemId);
         } else {
+          // Atualiza a quantidade do item específico
           set({
             items: get().items.map(item =>
-              item.id === productId ? { ...item, quantity: newQuantity } : item
+              item.id === cartItemId ? { ...item, quantity: newQuantity } : item
             ),
           });
         }
       },
 
-      // Ação para limpar o carrinho (usado após o checkout)
+      /**
+       * Limpa o carrinho (usado após o checkout).
+       */
       clearCart: () => {
         set({ items: [] });
       },
 
-      // TODO: Adicionar lógica para 'syncCart' com o Firestore 
-      // quando o usuário (do useAuthStore) fizer login.
+      // TODO: Adicionar lógica 'syncCart' para mesclar com o Firestore
+      // quando o usuário fizer login.
     }),
     {
       name: 'fina-estampa-cart', // Chave no localStorage

@@ -1,3 +1,4 @@
+/* --- Base Card Styles (Mobile-First) --- */
 .card {
   background-color: var(--color-highlight);
   border: 1px solid var(--color-border);
@@ -5,6 +6,11 @@
   overflow: hidden;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; /* Crucial para o posicionamento absoluto interno */
+  display: flex; /* Para alinhar info e botão */
+  flex-direction: column; /* Conteúdo empilhado verticalmente */
+  height: 100%; /* Garante que cards na mesma linha tenham a mesma altura */
+  text-decoration: none; /* Remove sublinhado do link */
 }
 
 .card:hover {
@@ -12,49 +18,172 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+/* --- Tags (Promoção e Timer) --- */
+.tagWrapper {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: flex;
+  flex-direction: row; /* Horizontal */
+  align-items: center; /* Alinha verticalmente */
+  gap: 0.8rem;
+}
+
+.saleTag {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.1rem; /* Ligeiramente menor */
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.countdownWrapper {
+  background-color: rgba(255, 255, 0, 0.9); /* Amarelo chamativo */
+  border: 1px solid #e6c300;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 1.2rem; /* Ligeiramente menor */
+  width: fit-content;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  white-space: nowrap;
+}
+/* Estilo do timer interno (opcional) */
+.countdownWrapper span {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* --- Imagem --- */
 .imageWrapper {
   width: 100%;
-  /* Mantém a proporção da imagem (quadrada) */
-  aspect-ratio: 1 / 1; 
+  aspect-ratio: 1 / 1; /* Mantém proporção quadrada */
   overflow: hidden;
-  background-color: #f0f0f0;
+  background-color: #f0f0f0; /* Placeholder */
 }
 
 .image {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Garante que a imagem cubra o espaço */
+  object-fit: cover; /* Garante que a imagem cubra */
+  display: block; /* Remove espaço extra abaixo */
 }
 
+/* --- Informações (Nome, Preço) --- */
 .info {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem; /* Ajuste no padding */
+  flex-grow: 1; /* Ocupa espaço vertical restante */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Empurra o preço para baixo */
 }
 
 .name {
-  font-size: 1.6rem;
+  font-size: 1.5rem; /* Ajustado */
   font-weight: 600;
   color: var(--color-text-dark);
-  margin-bottom: 1rem;
-  /* Garante que nomes longos não quebrem o layout */
+  margin-bottom: 0.8rem;
+  /* Truncamento de texto para nomes longos (UI/UX) */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  /* Para múltiplas linhas (menos comum em cards, mas possível)
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal; */
 }
 
 .priceContainer {
   display: flex;
   align-items: baseline;
-  gap: 1rem;
+  gap: 0.8rem; /* Espaço menor */
+  flex-wrap: wrap; /* Permite quebrar linha se necessário */
 }
 
 .oldPrice {
-  font-size: 1.4rem;
+  font-size: 1.3rem; /* Ajustado */
   color: #888;
   text-decoration: line-through;
 }
 
 .price {
-  font-size: 1.8rem;
+  font-size: 1.7rem; /* Ajustado */
   font-weight: 700;
   color: var(--color-primary);
+}
+
+/* --- Botão "Adicionar Rápido" --- */
+.addToCartBtn {
+  position: absolute;
+  bottom: 15px; /* Ajuste para alinhar com o padding da info */
+  right: 15px;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  border: 2px solid var(--color-highlight);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+  z-index: 3;
+  opacity: 0; /* Começa escondido */
+  transform: translateY(5px); /* Efeito sutil de subida */
+}
+
+/* Mostra o botão no hover do card (UI/UX) */
+.card:hover .addToCartBtn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Estilos de Hover e Disabled (importante para feedback) */
+.addToCartBtn:hover {
+  transform: scale(1.1);
+  background-color: #a00000; /* Vinho mais escuro */
+}
+
+.addToCartBtn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* =========================================
+=== MEDIA QUERIES (Ajustes Finos) ===
+=========================================
+*/
+
+/* Telas muito pequenas (ex: iPhones antigos) */
+@media (max-width: 375px) {
+  .name {
+    font-size: 1.4rem;
+  }
+  .price {
+    font-size: 1.6rem;
+  }
+  .oldPrice {
+    font-size: 1.2rem;
+  }
+  .saleTag, .countdownWrapper {
+    font-size: 1rem;
+    padding: 0.3rem 0.6rem;
+  }
+  .tagWrapper {
+    gap: 0.5rem;
+  }
+  .addToCartBtn {
+    width: 35px;
+    height: 35px;
+    font-size: 1.6rem;
+    bottom: 10px;
+    right: 10px;
+  }
 }

@@ -1,42 +1,48 @@
 .checkoutPage {
   margin-top: 2rem;
+  margin-bottom: 4rem;
 }
 
 .title {
   font-size: 3rem;
   color: var(--color-primary);
   margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1rem;
 }
 
-/* Mobile-First: tudo empilhado */
+/* Mobile-First: tudo empilhado (coluna de formulário primeiro) */
 .checkoutGrid {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 3rem;
 }
 
 .formColumn {
-  flex: 3;
+  flex: 3; /* Ocupa 3/5 da largura no desktop */
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
 .summaryColumn {
-  flex: 2;
+  flex: 2; /* Ocupa 2/5 da largura no desktop */
 }
 
+/* Seções do Formulário */
 .formSection {
   background-color: var(--color-highlight);
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 8px;
   border: 1px solid var(--color-border);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 .formSection h2 {
   font-size: 2.2rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 1rem;
+  color: var(--color-text-dark);
 }
 
 /* Formulário de Endereço */
@@ -45,32 +51,27 @@
   flex-direction: column;
   gap: 1.5rem;
 }
-
 .formRow {
   display: flex;
-  flex-direction: column; /* Mobile-First */
+  flex-direction: column; /* Mobile-First: empilhado */
   gap: 1.5rem;
 }
-
 .formGroup {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
-
 .formGroup label {
   font-size: 1.4rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
-
 .formGroup input {
   font-size: 1.6rem;
   padding: 1.2rem;
   border: 1px solid var(--color-border);
   border-radius: 5px;
 }
-
 .error {
   color: red;
   font-size: 1.3rem;
@@ -79,7 +80,7 @@
 
 /* Simulação de Pagamento */
 .paymentSimulation {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   line-height: 1.6;
   background-color: #f9f9f9;
   padding: 1.5rem;
@@ -87,14 +88,15 @@
   border: 1px dashed var(--color-border);
 }
 
-/* Resumo do Pedido (similar ao do Carrinho) */
+/* Resumo do Pedido */
 .orderSummary {
   background-color: var(--color-highlight);
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: 8px;
   border: 1px solid var(--color-border);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   position: sticky; /* Fica fixo no scroll (desktop) */
-  top: 100px; /* 60px (header) + 40px (espaço) */
+  top: 100px; /* 80px (header) + 20px (espaço) */
 }
 .orderSummary h2 {
   font-size: 2.2rem;
@@ -103,30 +105,59 @@
   padding-bottom: 1rem;
 }
 
+/* Lista de Itens no Resumo */
+.summaryItems {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
 .summaryItem {
   display: flex;
-  justify-content: space-between;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
-.summaryItem span:first-child {
-  color: #555;
-  max-width: 70%;
+.itemImage {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
 }
-.summaryItem span:last-child {
+.itemInfo {
+  flex-grow: 1;
+}
+.itemInfo p {
+  font-size: 1.4rem;
   font-weight: 600;
+  margin: 0;
+}
+.itemInfo small {
+  font-size: 1.2rem;
+  color: #555;
+}
+.itemPrice {
+  font-size: 1.4rem;
+  font-weight: 500;
+  white-space: nowrap;
 }
 
+/* Linhas de Total */
 .summaryRow {
   display: flex;
   justify-content: space-between;
   font-size: 1.6rem;
   margin-bottom: 1rem;
 }
-
+.summaryRow span {
+  color: #555;
+}
 .total {
   font-size: 1.8rem;
   margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 .total strong {
   color: var(--color-text-dark);
@@ -149,15 +180,39 @@
   cursor: not-allowed;
 }
 
-
 /* --- Desktop Layout --- */
-@media (min-width: 769px) {
+@media (min-width: 992px) {
+  /* Inverte a ordem visual: Formulário na esquerda, Resumo na direita */
   .checkoutGrid {
-    flex-direction: row-reverse; /* Inverte a ordem visual */
+    flex-direction: row-reverse; 
     align-items: flex-start;
   }
   
   .formRow {
-    flex-direction: row;
+    flex-direction: row; /* Inputs lado a lado */
   }
+}
+
+
+.cepInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cepInputWrapper input {
+  padding-right: 40px; /* Dá espaço para o spinner */
+}
+
+.cepSpinner {
+  position: absolute;
+  right: 12px;
+  color: var(--color-primary);
+  font-size: 1.6rem;
+  animation: spin 1s linear infinite;
+}
+
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

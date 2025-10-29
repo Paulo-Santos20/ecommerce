@@ -3,7 +3,7 @@
   padding: 2.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
+  max-width: 1000px; /* Aumentado para o novo layout */
   margin: 2rem auto;
 }
 
@@ -16,33 +16,51 @@
 
 .formRow {
   display: flex;
-  flex-direction: column; /* Mobile-First */
+  flex-direction: row; /* Alterado para linha por padrão */
   gap: 1.5rem;
 }
 
 .formGroup {
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* Ocupa espaço igual na linha */
+  margin-bottom: 2rem;
 }
 
 .formGroup label {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.8rem;
+  display: block;
 }
 
 .formGroup input,
-.formGroup textarea {
+.formGroup textarea,
+.select {
   font-size: 1.6rem;
-  padding: 1rem;
+  padding: 1.2rem;
   border: 1px solid var(--color-border);
   border-radius: 5px;
   background-color: #fdfdfd;
+  width: 100%;
 }
 
-.formGroup input[type="file"] {
-  padding: 0.5rem;
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #fdfdfd;
+  padding: 1.2rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+}
+.checkboxGroup input {
+  width: auto;
+  height: 20px;
+  width: 20px;
+}
+.checkboxGroup label {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--color-primary);
 }
 
 .error {
@@ -51,45 +69,212 @@
   margin-top: 0.5rem;
 }
 
+/* --- Imagens --- */
+.urlInputGroup {
+  display: flex;
+  gap: 0.5rem;
+}
+.btnAddUrl {
+  padding: 0 1.5rem;
+  background-color: #f0f0f0;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  font-weight: 500;
+}
+.imagePreviewContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.imagePreview {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--color-border);
+  border-radius: 5px;
+}
+.imagePreview.mainImage {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 10px rgba(128,0,0, 0.5);
+}
+.imagePreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+.btnRemoveImage {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: rgba(255, 0, 0, 0.8);
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+.btnSetMain {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.imagePreview:hover .btnSetMain {
+  opacity: 1;
+}
+.imagePreview.mainImage .btnSetMain {
+  opacity: 1;
+  background-color: var(--color-primary);
+}
+
+/* --- Variantes (NOVA LÓGICA DE GRID) --- */
+
+/* Header da Tabela (para desktop) */
+.variantHeader {
+  display: none; /* Escondido por padrão */
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #555;
+  padding: 0 0.5rem;
+}
+
+.variantRow, .variantHeader {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+
+/* Esconde o input de Preço Antigo por padrão */
+.oldPriceInput {
+  display: none;
+}
+
+/* Layout Padrão (Sem Promoção) - 5 Colunas */
+.variantRow, .variantHeader {
+  grid-template-columns: 2fr 1.5fr 1fr 1fr auto;
+  grid-template-areas: "color size price stock remove";
+}
+
+/* Layout Promoção (Com Preço Antigo) - 6 Colunas */
+.variantRow.saleActive, .variantHeader.saleActive {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr auto;
+  grid-template-areas: "color size price oldPrice stock remove";
+}
+
+/* Mostra o input de Preço Antigo no estado de promoção */
+.variantRow.saleActive .oldPriceInput {
+  display: block;
+}
+
+/* Atribui áreas do Grid */
+.variantRow input[placeholder*="Cor"] { grid-area: color; }
+.variantRow input[placeholder*="Tamanho"] { grid-area: size; }
+.variantRow input[placeholder*="Preço (R$)"] { grid-area: price; }
+.variantRow .oldPriceInput { grid-area: oldPrice; }
+.variantRow input[placeholder*="Estoque"] { grid-area: stock; }
+.btnRemoveVariant { grid-area: remove; }
+
+.variantHeader span:nth-child(1) { grid-area: color; }
+.variantHeader span:nth-child(2) { grid-area: size; }
+.variantHeader span:nth-child(3) { grid-area: price; }
+.variantHeader span:nth-child(4) { grid-area: oldPrice; }
+.variantHeader.saleActive span:nth-child(5) { grid-area: stock; }
+.variantHeader:not(.saleActive) span:nth-child(4) { grid-area: stock; } /* Ajuste */
+
+
+.btnRemoveVariant {
+  padding: 1rem;
+  font-size: 1.6rem;
+  color: red;
+}
+.btnAddVariant {
+  background-color: #e6f7ff;
+  border: 1px dashed #91d5ff;
+  color: #096dd9;
+  padding: 1rem;
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* --- Ações --- */
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 2rem;
 }
-
-.btnCancel,
-.btnSubmit {
+.btnCancel, .btnSubmit {
   font-size: 1.6rem;
   padding: 1rem 2rem;
   border-radius: 5px;
   font-weight: 600;
-  transition: all 0.2s ease;
 }
-
 .btnCancel {
   background-color: #f0f0f0;
   color: var(--color-text-dark);
 }
-.btnCancel:hover {
-  background-color: #e0e0e0;
-}
-
 .btnSubmit {
   background-color: var(--color-primary);
   color: var(--color-highlight);
 }
-.btnSubmit:hover {
-  opacity: 0.9;
-}
 .btnSubmit:disabled {
   background-color: #aaa;
-  cursor: not-allowed;
 }
 
-/* Desktop */
-@media (min-width: 768px) {
+/* Mobile */
+@media (max-width: 768px) {
   .formRow {
-    flex-direction: row;
+    flex-direction: column;
+  }
+  
+  .variantHeader {
+    display: none; /* Esconde header no mobile */
+  }
+
+  /* Empilha no mobile (2 colunas) */
+  .variantRow {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "color size"
+      "price stock"
+      "remove remove"; /* Botão ocupa a linha toda */
+  }
+  
+  /* Layout mobile COM promoção */
+  .variantRow.saleActive {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+      "color size"
+      "price oldPrice" /* Preço antigo entra aqui */
+      "stock stock"
+      "remove remove";
+  }
+  
+  .btnRemoveVariant {
+    justify-self: end;
   }
 }
