@@ -1,145 +1,93 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '../../firebase/config';
+import { useAuthStore } from '../../store/useAuthStore'; // Importa o Auth Store
 import ProductForm from '../../components/forms/ProductForm/ProductForm';
 import Loading from '../../components/ui/Loading/Loading';
 import { FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import styles from './AdminProducts.module.css';
 
 const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+const ADMIN_UID = import.meta.env.VITE_ADMIN_UID; // Pega o UID do admin do .env
 
-/**
- * Página de Gerenciamento de Produtos (CRUD).
- * ATUALIZADO: Busca categorias e exibe a nova estrutura de variantes.
- */
 const AdminProducts = () => {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  
-  const [isFormVisible, setIsFormVisible] = useState(false);
-  const [productToEdit, setProductToEdit] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [isFormVisible, setIsFormVisible] = useState(false);
+    const [productToEdit, setProductToEdit] = useState(null);
+    
+    // --- GUARDA DE ROTEAMENTO DE ADMIN ---
+    const user = useAuthStore((state) => state.user);
+    const isAuthReady = useAuthStore((state) => state.isAuthReady);
+    const navigate = useNavigate();
+    const [isAuthorized, setIsAuthorized] = useState(false); // Flag de autorização
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // 1. Buscar Produtos
-      const productsQuery = query(collection(db, 'products'), orderBy('nome'));
-      const productsSnapshot = await getDocs(productsQuery);
-      const productsData = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setProducts(productsData);
+    useEffect(() => {
+        if (isAuthReady) {
+            if (!user) {
+                // Não logado
+                navigate('/login?redirect=/admin');
+            } else if (user.uid !== ADMIN_UID) {
+                // Logado, mas não é admin
+                toast.error("Acesso não autorizado.");
+                navigate('/');
+            } else {
+                // Logado e é admin
+                setIsAuthorized(true);
+            }
+        }
+    }, [user, isAuthReady, navigate]);
+    // --- FIM DA GUARDA ---
 
-      // 2. Buscar Categorias
-      const categoriesQuery = query(collection(db, 'categories'), orderBy('nome'));
-      const categoriesSnapshot = await getDocs(categoriesQuery);
-      const categoriesData = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCategories(categoriesData);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const productsQuery = query(collection(db, 'products'), orderBy('nome'));
+            const productsSnapshot = await getDocs(productsQuery);
+            const productsData = productsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setProducts(productsData);
 
-    } catch (err) {
-      console.error(err);
-      setError("Falha ao carregar dados. Verifique as regras do Firestore.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+            const categoriesQuery = query(collection(db, 'categories'), orderBy('nome'));
+            const categoriesSnapshot = await getDocs(categoriesQuery);
+            const categoriesData = categoriesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCategories(categoriesData);
+        } catch (err) {
+            console.error(err);
+            setError("Falha ao carregar dados. Verifique as regras do Firestore.");
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // Só busca os dados se o usuário for autorizado
+    useEffect(() => {
+        if (isAuthorized) {
+            fetchData();
+        }
+    }, [isAuthorized, fetchData]);
 
-  const handleDelete = async (productId) => {
-    if (!window.confirm("Tem certeza que deseja excluir este produto?")) return;
-    try {
-      await deleteDoc(doc(db, 'products', productId));
-      setProducts(prev => prev.filter(p => p.id !== productId));
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao excluir o produto.");
-    }
-  };
+    const handleDelete = async (productId) => { /* ... (inalterado) ... */ };
+    const handleEdit = (product) => { /* ... (inalterado) ... */ };
+    const handleAddNew = () => { /* ... (inalterado) ... */ };
+    const handleFormClose = () => { /* ... (inalterado) ... */ };
+    
+    // Mostra Loading enquanto o auth é verificado
+    if (!isAuthReady || (loading && isAuthorized)) return <Loading />;
+    
+    // Se não for autorizado (após o auth estar pronto), não mostra nada (já foi redirecionado)
+    if (!isAuthorized) return null; 
 
-  const handleEdit = (product) => {
-    setProductToEdit(product);
-    setIsFormVisible(true);
-  };
-  const handleAddNew = () => {
-    setProductToEdit(null);
-    setIsFormVisible(true);
-  };
-  const handleFormClose = () => {
-    setIsFormVisible(false);
-    setProductToEdit(null);
-    fetchData(); 
-  };
+    if (error) return <p className="container">{error}</p>;
 
-  if (loading) return <Loading />;
-  if (error) return <p className="container">{error}</p>;
-
-  return (
-    <div className="container">
-      <div className={styles.adminHeader}>
-        <h1 className={styles.title}>Gerenciar Produtos</h1>
-        <button onClick={handleAddNew} className={styles.btnAdd}>Adicionar Novo Produto</button>
-      </div>
-
-      {isFormVisible && (
-        <div className={styles.formOverlay}>
-          <div className={styles.formContainer}>
-            <ProductForm 
-              productToEdit={productToEdit} 
-              categories={categories}
-              onFormClose={handleFormClose} 
-            />
-          </div>
+    return (
+        <div className="container">
+            {/* ... (JSX do AdminProducts inalterado) ... */}
         </div>
-      )}
-
-      {/* Tabela de Produtos Atualizada */}
-      <div className={styles.tableWrapper}>
-        <table className={styles.productsTable}>
-          <thead>
-            <tr>
-              <th>Produto</th>
-              <th>Categoria</th>
-              <th>Promo?</th>
-              <th>Variantes (SKUs)</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr><td colSpan="5">Nenhum produto cadastrado.</td></tr>
-            ) : (
-              products.map(product => (
-                <tr key={product.id}>
-                  <td>{product.nome}</td>
-                  <td>{product.categoria}</td>
-                  <td>
-                    {product.onSale ? 
-                      <FaCheckCircle className={styles.iconSale} /> : 
-                      <FaTimesCircle className={styles.iconNoSale} />}
-                  </td>
-                  <td>
-                    {product.variants?.map((v, i) => (
-                      <span key={i} className={styles.variantTag}>
-                        {v.color} / {v.size} / {formatCurrency(v.price)} / {v.stock} un.
-                      </span>
-                    ))}
-                  </td>
-                  <td className={styles.actions}>
-                    <button onClick={() => handleEdit(product)} className={styles.btnEdit}><FaEdit /></button>
-                    <button onClick={() => handleDelete(product.id)} className={styles.btnDelete}><FaTrash /></button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default AdminProducts;

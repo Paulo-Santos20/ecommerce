@@ -9,10 +9,10 @@ import { db } from '../../firebase/config';
 import { collection, addDoc, doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import Loading from '../../components/ui/Loading/Loading';
-import { FaSpinner } from 'react-icons/fa'; // Importa o spinner
+import { FaSpinner } from 'react-icons/fa';
 import styles from './Checkout.module.css';
 
-// Esquema de validação do Endereço (Zod)
+// Esquema de validação do Endereço
 const addressSchema = z.object({
   cep: z.string().min(8, "CEP inválido. Use 8 números.").max(9, "CEP inválido."),
   rua: z.string().min(3, "Rua é obrigatória."),
@@ -23,19 +23,21 @@ const addressSchema = z.object({
   estado: z.string().min(2, "UF é obrigatória (ex: PE).").max(2, "Use apenas a sigla (ex: PE)."),
 });
 
-// Helper de formatação de moeda
 const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const Checkout = () => {
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
-  const [isCepLoading, setIsCepLoading] = useState(false); // 1. Estado para o loading do CEP
+  const [isCepLoading, setIsCepLoading] = useState(false);
   const [formError, setFormError] = useState(null);
   const navigate = useNavigate();
 
-  // --- Hooks dos Stores ---
+  // --- Stores ---
   const items = useCartStore((state) => state.items);
   const clearCart = useCartStore((state) => state.clearCart);
+  // --- CORREÇÃO DA GUARDA DE ROTEAMENTO ---
   const user = useAuthStore((state) => state.user);
+  const isAuthReady = useAuthStore((state) => state.isAuthReady);
+  // ------------------------------------
   
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -46,91 +48,65 @@ const Checkout = () => {
     }
   });
 
-  // --- REQUISITO: Autocomplete do CEP ---
-  const cepValue = watch('cep'); // "Assiste" ao valor do campo CEP
-
+  // Autocomplete do CEP
+  const cepValue = watch('cep');
   useEffect(() => {
-    // 2. Função para buscar o CEP na API
     const fetchCepData = async (cep) => {
       setIsCepLoading(true);
       try {
         const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
         if (!response.ok) throw new Error("CEP não encontrado.");
-        
         const data = await response.json();
-        
-        // 3. Preenche os campos do formulário (UI/UX de Excelência)
         setValue('rua', data.street || '', { shouldValidate: true });
         setValue('bairro', data.neighborhood || '', { shouldValidate: true });
         setValue('cidade', data.city || '', { shouldValidate: true });
         setValue('estado', data.state || '', { shouldValidate: true });
-
       } catch (error) {
         console.error("Erro ao buscar CEP:", error);
-        // Não define um erro de formulário, apenas falha em preencher
       } finally {
         setIsCepLoading(false);
       }
     };
-
-    const cepLimpo = cepValue?.replace(/\D/g, ''); // Remove máscara (ex: '55611-010')
+    const cepLimpo = cepValue?.replace(/\D/g, '');
     if (cepLimpo && cepLimpo.length === 8) {
       fetchCepData(cepLimpo);
     }
-  }, [cepValue, setValue]); // Roda sempre que o 'cepValue' mudar
+  }, [cepValue, setValue]);
 
-  // --- Busca Endereço Salvo ---
+  // Busca Endereço Salvo
   useEffect(() => {
     if (user) {
       const fetchUserAddress = async () => {
         const userRef = doc(db, 'users', user.uid);
         const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists() && userSnap.data().endereco) {
-          // Preenche o formulário se o CEP ainda não foi preenchido
-          if (!watch('cep')) { 
-            reset(userSnap.data().endereco);
-          }
+        if (userSnap.exists() && userSnap.data().endereco && !watch('cep')) {
+          reset(userSnap.data().endereco);
         }
       };
       fetchUserAddress();
     }
   }, [user, reset, watch]);
 
-  // --- Submissão do Pedido ---
+  // Submissão do Pedido
   const handleOrderSubmit = async (data) => {
     setIsSubmittingOrder(true);
     setFormError(null);
-
     const orderData = {
-      userId: user.uid,
-      userEmail: user.email,
-      userName: user.displayName,
-      itens: items, 
-      total: subtotal,
-      status: "processando", // Status inicial que o Admin irá aprovar
-      enderecoEnvio: data, 
-      dataPedido: serverTimestamp(),
+      userId: user.uid, userEmail: user.email, userName: user.displayName,
+      itens: items, total: subtotal, status: "processando",
+      enderecoEnvio: data, dataPedido: serverTimestamp(),
     };
-
     try {
       const orderCollectionRef = collection(db, 'orders');
       const orderRef = await addDoc(orderCollectionRef, orderData);
-      
       const userRef = doc(db, 'users', user.uid);
       await setDoc(userRef, { 
-          endereco: data, 
-          historicoPedidos: arrayUnion(orderRef.id)
-        }, 
-        { merge: true } 
+          endereco: data, historicoPedidos: arrayUnion(orderRef.id)
+        }, { merge: true } 
       );
-      
       clearCart();
-      
-      // 4. REQUISITO: Redireciona para a página de "Meus Pedidos" do cliente
       toast.success("Pedido realizado com sucesso!");
       navigate('/meus-pedidos'); 
-
     } catch (error) {
       console.error("Erro ao criar pedido: ", error);
       setFormError("Não foi possível processar seu pedido. Tente novamente.");
@@ -140,50 +116,49 @@ const Checkout = () => {
     }
   };
   
-  // --- Guardas de Roteamento ---
-  if (!user) {
-    navigate('/login?redirect=/checkout'); 
-    return <Loading />; 
+  // --- CORREÇÃO DA GUARDA DE ROTEAMENTO ---
+  useEffect(() => {
+    // 1. Espera o Auth estar pronto
+    if (!isAuthReady) {
+      return; // Não faz nada (mostra o Loading abaixo)
+    }
+    
+    // 2. Se estiver pronto E não houver usuário, redireciona
+    if (!user) {
+      toast.warn("Você precisa estar logado para finalizar a compra.");
+      navigate('/login?redirect=/checkout');
+    }
+    
+    // 3. Se estiver pronto E o carrinho estiver vazio, redireciona
+    if (items.length === 0 && !isSubmittingOrder) {
+      toast.info("Seu carrinho está vazio.");
+      navigate('/loja');
+    }
+  }, [user, isAuthReady, items.length, isSubmittingOrder, navigate]);
+
+  // Mostra Loading enquanto o auth (ou o carrinho) não está pronto
+  if (!isAuthReady || !user || (items.length === 0 && !isSubmittingOrder)) {
+    return <Loading />;
   }
-  if (items.length === 0 && !isSubmittingOrder) { // Evita redirecionar durante a submissão
-    navigate('/loja'); 
-    return <Loading />; 
-  }
+  // --- FIM DA CORREÇÃO ---
 
   return (
     <div className={`container ${styles.checkoutPage}`}>
       <h1 className={styles.title}>Finalizar Compra</h1>
-      
       <div className={styles.checkoutGrid}>
-        
-        {/* Coluna 1: Formulário */}
         <div className={styles.formColumn}>
           <form onSubmit={handleSubmit(handleOrderSubmit)} id="checkout-form">
-            
-            {/* Seção de Endereço */}
             <section className={styles.formSection}>
               <h2>1. Endereço de Entrega</h2>
               <div className={styles.addressForm}>
-                {/* CEP */}
                 <div className={styles.formGroup}>
                   <label htmlFor="cep">CEP</label>
                   <div className={styles.cepInputWrapper}>
-                    <input 
-                      id="cep" 
-                      {...register("cep")} 
-                      maxLength={9}
-                      onChange={(e) => { // Formatação de máscara do CEP
-                        const formattedCep = e.target.value
-                            .replace(/\D/g, '')
-                            .replace(/^(\d{5})(\d)/, '$1-$2');
-                        setValue('cep', formattedCep, { shouldValidate: true });
-                      }}
-                    />
+                    <input id="cep" {...register("cep")} maxLength={9} onChange={(e) => { const formattedCep = e.target.value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2'); setValue('cep', formattedCep, { shouldValidate: true }); }} />
                     {isCepLoading && <FaSpinner className={styles.cepSpinner} />}
                   </div>
                   {errors.cep && <span className={styles.error}>{errors.cep.message}</span>}
                 </div>
-                {/* Rua e Número */}
                 <div className={styles.formRow}>
                   <div className={styles.formGroup} style={{flex: 3}}>
                     <label htmlFor="rua">Rua / Av.</label>
@@ -196,7 +171,6 @@ const Checkout = () => {
                     {errors.numero && <span className={styles.error}>{errors.numero.message}</span>}
                   </div>
                 </div>
-                {/* Complemento e Bairro */}
                 <div className={styles.formRow}>
                   <div className={styles.formGroup} style={{flex: 1}}>
                     <label htmlFor="complemento">Complemento (Opcional)</label>
@@ -208,7 +182,6 @@ const Checkout = () => {
                     {errors.bairro && <span className={styles.error}>{errors.bairro.message}</span>}
                   </div>
                 </div>
-                {/* Cidade e Estado */}
                 <div className={styles.formRow}>
                   <div className={styles.formGroup} style={{flex: 3}}>
                     <label htmlFor="cidade">Cidade</label>
@@ -223,20 +196,14 @@ const Checkout = () => {
                 </div>
               </div>
             </section>
-
-            {/* Seção de Pagamento (Texto Atualizado) */}
             <section className={styles.formSection}>
               <h2>2. Pagamento</h2>
-              {/* --- REQUISITO: Texto de Aprovação --- */}
               <div className={styles.paymentSimulation}>
                 <p>Seu pedido será processado e está sujeito à aprovação de estoque e disponibilidade. Você será notificado sobre o status do seu pedido.</p>
-                <p>Ao clicar em "Finalizar Pedido", você confirma os dados e autoriza o processamento.</p>
               </div>
             </section>
           </form>
         </div>
-
-        {/* Coluna 2: Resumo do Pedido */}
         <div className={styles.summaryColumn}>
           <div className={styles.orderSummary}>
             <h2>Resumo do Pedido</h2>
@@ -248,13 +215,10 @@ const Checkout = () => {
                     <p>{item.nome}</p>
                     <small>{item.color} / {item.size}</small>
                   </div>
-                  <span className={styles.itemPrice}>
-                    {item.quantity}x {formatCurrency(item.price)}
-                  </span>
+                  <span className={styles.itemPrice}>{item.quantity}x {formatCurrency(item.price)}</span>
                 </div>
               ))}
             </div>
-            
             <div className={styles.summaryRow}>
               <span>Subtotal</span>
               <span>{formatCurrency(subtotal)}</span>
@@ -267,15 +231,8 @@ const Checkout = () => {
               <strong>Total</strong>
               <strong>{formatCurrency(subtotal)}</strong>
             </div>
-            
             {formError && <span className={styles.error}>{formError}</span>}
-            
-            <button 
-              type="submit" 
-              form="checkout-form" 
-              className={styles.ctaButton}
-              disabled={isSubmittingOrder || isCepLoading} // Desabilita se estiver carregando CEP
-            >
+            <button type="submit" form="checkout-form" className={styles.ctaButton} disabled={isSubmittingOrder || isCepLoading}>
               {isSubmittingOrder ? "Processando..." : "Finalizar Pedido"}
             </button>
           </div>

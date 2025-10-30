@@ -4,13 +4,14 @@ import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/
 import { db } from '../../firebase/config'; // Verifique o caminho
 import { useCartStore } from '../../store/useCartStore'; // Verifique o caminho
 import { useAuthStore } from '../../store/useAuthStore'; // Verifique o caminho
+import { useRecentlyViewed } from '../../hooks/useRecentlyViewed'; // 1. IMPORTADO
 import { toast } from 'react-toastify';
 import { FaHeart, FaShippingFast, FaSpinner, FaStar, FaEdit } from 'react-icons/fa';
 import Loading from '../../components/ui/Loading/Loading';
 import ProductGallery from '../../components/ui/ProductGallery/ProductGallery';
 import Accordion from '../../components/ui/Accordion/Accordion';
 import ProductCarousel from '../../components/ui/ProductCarousel/ProductCarousel';
-// Importa os componentes (que já devem existir)
+// Importa os placeholders (assumindo que existem)
 import ReviewForm from '../../components/forms/ReviewForm/ReviewForm';
 import ReviewList from '../../components/ui/ReviewList/ReviewList';
 import QuestionForm from '../../components/forms/QuestionForm/QuestionForm';
@@ -28,10 +29,7 @@ const formatCurrency = (value) => {
 const isSaleActive = (product) => {
     if (!product?.onSale) return false;
     if (product.onSale && !product.offerEndDate) return true; // Promo permanente
-    // Garante que é um Timestamp antes de chamar toDate()
-    return product.offerEndDate && typeof product.offerEndDate.toDate === 'function'
-           ? product.offerEndDate.toDate() > new Date()
-           : false;
+    return product.offerEndDate?.toDate() > new Date(); // Verifica data
 };
 
 // Acessa a variável de ambiente no topo do módulo
@@ -42,6 +40,7 @@ const ProductPage = () => {
     const { id: productId } = useParams();
     const addItemToCart = useCartStore((state) => state.addItem);
     const user = useAuthStore((state) => state.user);
+    const { addProduct: addRecentlyViewed } = useRecentlyViewed(); // 2. HOOK ATIVADO
 
     // Estados
     const [product, setProduct] = useState(null);
@@ -78,6 +77,12 @@ const ProductPage = () => {
                     setProduct(fullProduct);
                     setSaleIsActiveState(isSaleActive(fullProduct));
                     setSelectedColor(data.variants[0].color); // Cor padrão
+
+                    // --- 3. ADICIONADO AQUI ---
+                    // Salva o ID deste produto na lista de "vistos recentemente"
+                    addRecentlyViewed(docSnap.id);
+                    // --------------------------
+
                 } else { setError("Produto não encontrado."); }
             } catch (err) {
                 console.error("Erro ao buscar produto:", err);
@@ -85,7 +90,7 @@ const ProductPage = () => {
             } finally { setLoading(false); }
         };
         fetchProduct();
-    }, [productId]);
+    }, [productId, addRecentlyViewed]); // 4. ADICIONADO À DEPENDÊNCIA
 
     // --- Memos para Variantes ---
     const availableColors = useMemo(() => {

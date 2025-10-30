@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- REGRAS NOVAS PARA O CHAT ---
+    match /conversations/{userId} {
+      // O usuário só pode acessar (ler, escrever) o SEU PRÓPRIO chat
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Regras para a subcoleção de mensagens
+      match /messages/{messageId} {
+        // O usuário só pode ler e criar mensagens em SEU PRÓPRIO chat
+        allow read, create: if request.auth != null && request.auth.uid == userId;
+        // (O admin poderá responder via Cloud Functions)
+      }
+    }
+    // --- FIM DAS REGRAS NOVAS ---
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true; // Temporário
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+      }
+      match /questions/{questionId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update: if true; // Temporário
+      }
+    }
+    match /categories/{categoryId} {
+      allow read: if true; 
+      allow write: if true; 
+    }
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    match /store-notifications/{notificationId} {
+      allow read: if true; 
+      allow write: if true; 
+    }
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      match /notifications/{notificationId} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}

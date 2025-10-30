@@ -4,17 +4,24 @@ import { auth } from '../firebase/config';
 
 /**
  * Store global para gerenciar o estado de autenticação.
- * Ouve as mudanças de auth do Firebase e atualiza o estado.
- * (Performance Total: só é acionado quando o auth muda)
+ * (Princípio: Código de Alta Qualidade)
  */
 export const useAuthStore = create((set) => ({
   user: null,
-  isAuthReady: false, // Indica se já verificamos o auth do Firebase
+  isAuthReady: false, // <-- Este é o flag que corrige o bug
   
-  // Ação para ser chamada no App.jsx para iniciar o listener
+  /**
+   * Ativa o "ouvinte" do Firebase Auth.
+   * Quando o status do usuário muda (login/logout/carregamento inicial),
+   * ele atualiza o estado e marca o 'isAuthReady' como true.
+   */
   listenToAuthChanges: () => {
-    onAuthStateChanged(auth, (user) => {
-      set({ user: user, isAuthReady: true });
+    // onAuthStateChanged retorna uma função 'unsubscribe'
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      // Quando o Firebase responde, definimos o usuário e marcamos como "pronto"
+      set({ user: user, isAuthReady: true }); 
     });
+    // Retorna o 'unsubscribe' para limpeza (se necessário)
+    return unsubscribe; 
   },
 }));

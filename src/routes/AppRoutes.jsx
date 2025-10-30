@@ -13,6 +13,9 @@ const AdminProducts = lazy(() => import('../pages/Admin/AdminProducts'));
 const LoginPage = lazy(() => import('../pages/Auth/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/Auth/RegisterPage'));
 const MyOrders = lazy(() => import('../pages/MyOrders/MyOrders'));
+const RecentlyViewed = lazy(() => import('../pages/RecentlyViewed/RecentlyViewed'));
+const NotificationsPage = lazy(() => import('../pages/Notifications/NotificationsPage')); 
+const ContactPage = lazy(() => import('../pages/Contact/ContactPage'));
 
 const AppRoutes = () => {
   return (
@@ -37,11 +40,11 @@ const AppRoutes = () => {
           {/* TODO: Adicionar rota 404 aqui dentro também */}
           {/* <Route path="*" element={<NotFound />} /> */}
 
-          <Route path="meus-pedidos" element={<MyOrders />} /> {/* 2. Adicionar a rota */}
-        </Route>
-
-        {/* Rotas SEM Layout (se houver alguma no futuro) iriam aqui fora */}
-        
+          <Route path="meus-pedidos" element={<MyOrders />} /> 
+          <Route path="ultimos-vistos" element={<RecentlyViewed />} /> 
+          <Route path="notificacoes" element={<NotificationsPage />} /> 
+          <Route path="fale-conosco" element={<ContactPage />} />
+        </Route>        
       </Routes>
     </Suspense>
   );

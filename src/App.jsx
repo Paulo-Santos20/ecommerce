@@ -1,26 +1,52 @@
-import React, { useEffect } from 'react'; // 1. Importar useEffect
+import React, { useEffect } from 'react';
 import AppRoutes from './routes/AppRoutes';
-import { useAuthStore } from './store/useAuthStore'; // 2. Importar o store
+import { useAuthStore } from './store/useAuthStore';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 /**
  * Componente App Raiz.
- * Responsável por inicializar listeners globais (como o de autenticação)
- * e renderizar o sistema de rotas.
+ * Responsável por:
+ * 1. Renderizar o container de Toasts (Notificações)
+ * 2. Inicializar o listener de autenticação (useAuthStore).
+ * 3. Renderizar o sistema de rotas (AppRoutes).
  */
 function App() {
-  // 3. Pegar a AÇÃO de 'ouvir' do store
+  // Pega a AÇÃO de 'ouvir' do store
   const listenToAuthChanges = useAuthStore(
     (state) => state.listenToAuthChanges
   );
 
-  // 4. Executar a ação UMA VEZ quando o app carregar
+  // Executa o listener UMA VEZ quando o App é montado
   useEffect(() => {
-    // Isso liga o "ouvinte" do Firebase
-    listenToAuthChanges(); 
-  }, [listenToAuthChanges]); // O array de dependência garante que rode só uma vez
+    const unsubscribe = listenToAuthChanges(); 
+    
+    // Opcional: Desliga o ouvinte quando o App "morre"
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [listenToAuthChanges]);
 
-  // O AppRoutes renderiza o Layout, que renderiza o Header e as Páginas
-  return <AppRoutes />;
+  return (
+    <>
+      {/* Container global para notificações (toasts) */}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+      <AppRoutes />
+    </>
+  );
 }
 
 export default App;
