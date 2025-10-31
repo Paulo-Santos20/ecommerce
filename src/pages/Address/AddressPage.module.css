@@ -1,0 +1,143 @@
+.pageWrapper {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+  min-height: 60vh;
+}
+
+.title {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+.subtitle {
+  font-size: 1.6rem;
+  color: #555;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1.5rem;
+}
+
+.addressList {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.noAddress {
+  font-size: 1.6rem;
+  color: #555;
+  text-align: center;
+  font-style: italic;
+  padding: 2rem;
+}
+
+/* Card de Endereço Salvo */
+.addressCard {
+  background: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.cardHeader strong {
+  font-size: 1.8rem;
+  color: var(--color-text-dark);
+}
+.defaultBadge {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+.addressContent {
+  padding: 1.5rem 2rem;
+}
+.addressContent p {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+.cardActions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--color-border);
+  background-color: #f9f9f9;
+}
+.actionBtn {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.actionBtn svg {
+  color: #555;
+}
+.actionBtn:hover {
+  color: var(--color-primary);
+}
+.deleteBtn {
+  color: #dc3545;
+}
+.deleteBtn svg {
+  color: #dc3545;
+}
+
+/* Botão de Adicionar */
+.showFormButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 1.2rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* Container do Formulário */
+.formContainer {
+  margin-top: 2rem;
+  padding: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-highlight);
+}
+.formContainer h2 {
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.cancelButton {
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 1.5rem;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .addressList {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas desktop */
+  }
+}

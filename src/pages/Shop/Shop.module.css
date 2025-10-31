@@ -4,12 +4,12 @@
   margin-bottom: 2rem;
   border-bottom: 2px solid var(--color-border);
   padding-bottom: 1rem;
+  text-transform: capitalize; /* Deixa o nome da categoria bonito */
 }
 
 .productsGrid {
   display: grid;
-  /* Mobile-First: 2 colunas */
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* Mobile-First: 2 colunas */
   gap: 1.5rem;
 }
 
@@ -18,9 +18,11 @@
   font-size: 1.8rem;
   text-align: center;
   margin-top: 3rem;
+  background-color: #ffebee;
+  padding: 1.5rem;
+  border-radius: 5px;
 }
 
-/* Novo estilo para quando não há produtos */
 .emptyShop {
   text-align: center;
   padding: 4rem 2rem;
@@ -33,12 +35,17 @@
 }
 .emptyShop p {
   font-size: 1.6rem;
-  margin-top: 1rem;
+  margin: 1rem 0 2rem 0;
 }
 .emptyShop a {
-  color: var(--color-primary);
+  display: inline-block;
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
   font-weight: 600;
-  text-decoration: underline;
+  padding: 1.2rem 2.5rem;
+  border-radius: 5px;
+  text-decoration: none;
 }
 
 /* Tablet: 3 colunas */

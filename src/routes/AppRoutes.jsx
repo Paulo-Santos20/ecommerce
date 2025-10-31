@@ -1,9 +1,9 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Layout from '../components/layout/Layout'; // Importa o Layout com Header/Footer
+import Layout from '../components/layout/Layout';
 import Loading from '../components/ui/Loading/Loading';
 
-// --- Code Splitting ---
+// --- Imports ---
 const Home = lazy(() => import('../pages/Home/Home'));
 const Shop = lazy(() => import('../pages/Shop/Shop'));
 const ProductPage = lazy(() => import('../pages/ProductPage/ProductPage'));
@@ -14,14 +14,20 @@ const LoginPage = lazy(() => import('../pages/Auth/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/Auth/RegisterPage'));
 const MyOrders = lazy(() => import('../pages/MyOrders/MyOrders'));
 const RecentlyViewed = lazy(() => import('../pages/RecentlyViewed/RecentlyViewed'));
-const NotificationsPage = lazy(() => import('../pages/Notifications/NotificationsPage')); 
+const NotificationsPage = lazy(() => import('../pages/Notifications/NotificationsPage'));
 const ContactPage = lazy(() => import('../pages/Contact/ContactPage'));
+const ChangeContactPage = lazy(() => import('../pages/ChangeContact/ChangeContactPage'));
+const MyAccountPage = lazy(() => import('../pages/MyAccount/MyAccountPage'));
+const AddressPage = lazy(() => import('../pages/Address/AddressPage'));
+const PaymentMethodsPage = lazy(() => import('../pages/PaymentMethods/PaymentMethodsPage')); 
+const ChangePasswordPage = lazy(() => import('../pages/ChangePassword/ChangePasswordPage'));
+
+const PlaceholderPage = lazy(() => import('../pages/PlaceholderPage')); 
 
 const AppRoutes = () => {
   return (
     <Suspense fallback={<Loading />}>
       <Routes>
-        {/* --- TODAS AS ROTAS COM LAYOUT FICAM AQUI DENTRO --- */}
         <Route path="/" element={<Layout />}>
           {/* Páginas Principais */}
           <Route index element={<Home />} />
@@ -29,22 +35,29 @@ const AppRoutes = () => {
           <Route path="produto/:id" element={<ProductPage />} />
           <Route path="carrinho" element={<Cart />} />
           <Route path="checkout" element={<Checkout />} />
-          
-          {/* Páginas de Admin */}
           <Route path="admin" element={<AdminProducts />} />
-          
-          {/* --- ROTAS DE AUTENTICAÇÃO MOVIDAS PARA CÁ --- */}
+
+          {/* Páginas de Autenticação */}
           <Route path="login" element={<LoginPage />} />
           <Route path="cadastro" element={<RegisterPage />} />
-
-          {/* TODO: Adicionar rota 404 aqui dentro também */}
-          {/* <Route path="*" element={<NotFound />} /> */}
-
-          <Route path="meus-pedidos" element={<MyOrders />} /> 
-          <Route path="ultimos-vistos" element={<RecentlyViewed />} /> 
-          <Route path="notificacoes" element={<NotificationsPage />} /> 
+          
+          {/* Páginas da Conta do Usuário (do Dropdown) */}
+          <Route path="meus-pedidos" element={<MyOrders />} />
+          <Route path="ultimos-vistos" element={<RecentlyViewed />} />
+          <Route path="notificacoes" element={<NotificationsPage />} />
           <Route path="fale-conosco" element={<ContactPage />} />
-        </Route>        
+          
+          {/* --- NOVAS ROTAS ADICIONADAS --- */}
+          <Route path="meus-dados" element={<MyAccountPage />} />
+          <Route path="alterar-contato" element={<ChangeContactPage />} />          
+          <Route path="enderecos" element={<AddressPage />} />
+          <Route path="formas-de-pagamento" element={<PaymentMethodsPage />} />
+          <Route path="alterar-senha" element={<ChangePasswordPage />} />
+          <Route path="politica-privacidade" element={<PlaceholderPage />} />
+          
+          {/* TODO: Rota 404 */}
+          {/* <Route path="*" element={<NotFound />} /> */}
+        </Route>
       </Routes>
     </Suspense>
   );

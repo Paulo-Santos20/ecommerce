@@ -1,0 +1,35 @@
+.placeholderPage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 4rem 0;
+}
+.placeholderPage svg {
+    font-size: 5rem;
+    color: var(--color-primary);
+    opacity: 0.5;
+    margin-bottom: 1.5rem;
+}
+.title {
+    font-size: 3rem;
+    color: var(--color-text-dark);
+    margin-bottom: 1rem;
+    text-transform: capitalize; /* Deixa a primeira letra maiúscula */
+}
+.placeholderPage p {
+    font-size: 1.8rem;
+    color: #555;
+    margin-bottom: 2rem;
+}
+.ctaButton {
+    background-color: var(--color-primary);
+    color: var(--color-highlight);
+    font-size: 1.6rem;
+    font-weight: 600;
+    padding: 1.2rem 2.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+}

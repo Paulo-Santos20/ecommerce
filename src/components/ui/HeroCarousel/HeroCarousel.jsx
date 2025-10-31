@@ -13,26 +13,27 @@ import 'swiper/css/pagination';
 // Importando nossos estilos CSS Modules
 import styles from './HeroCarousel.module.css';
 
-// --- ATUALIZADO: Usando imagens reais do Unsplash ---
+// --- ATUALIZADO: Usando 'picsum.photos' (Rápido e Estável) ---
+// Usamos 'seed' para obter uma imagem consistente para cada slide
 const bannerImages = [
   {
     id: 1,
-    imgUrlMobile: 'https://source.unsplash.com/800x600/?fashion,sale&sig=1',
-    imgUrlDesktop: 'https://source.unsplash.com/1600x400/?fashion,sale&sig=2',
+    imgUrlMobile: 'https://picsum.photos/seed/promo1/800/600',
+    imgUrlDesktop: 'https://picsum.photos/seed/promo1-desk/1600/400',
     alt: 'Banner da Promoção 1',
     link: '/loja?categoria=ofertas',
   },
   {
     id: 2,
-    imgUrlMobile: 'https://source.unsplash.com/800x600/?new,style,clothing&sig=3',
-    imgUrlDesktop: 'https://source.unsplash.com/1600x400/?new,style,clothing&sig=4',
+    imgUrlMobile: 'https://picsum.photos/seed/novo-estilo/800/600',
+    imgUrlDesktop: 'https://picsum.photos/seed/novo-estilo-desk/1600/400',
     alt: 'Banner da Promoção 2',
     link: '/loja?categoria=novidades',
   },
   {
     id: 3,
-    imgUrlMobile: 'https://source.unsplash.com/800x600/?womens-fashion,model&sig=5',
-    imgUrlDesktop: 'https://source.unsplash.com/1600x400/?womens-fashion,model&sig=6',
+    imgUrlMobile: 'https://picsum.photos/seed/moda-feminina/800/600',
+    imgUrlDesktop: 'https://picsum.photos/seed/moda-feminina-desk/1600/400',
     alt: 'Banner da Promoção 3',
     link: '/loja?categoria=feminino',
   },

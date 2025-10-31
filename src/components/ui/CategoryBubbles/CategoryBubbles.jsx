@@ -12,17 +12,18 @@ import 'swiper/css/free-mode';
 // Importando nossos estilos CSS Modules
 import styles from './CategoryBubbles.module.css';
 
-// --- ATUALIZADO: Usando imagens reais do Unsplash ---
+// --- ATUALIZADO: Usando 'picsum.photos' (Rápido e Estável) ---
+// Adicionamos 'seed' para garantir que cada categoria tenha uma imagem consistente
 const categories = [
-  { id: 1, name: 'Feminino', imgUrl: 'https://source.unsplash.com/150x150/?woman,fashion', link: '/loja?categoria=feminino' },
-  { id: 2, name: 'Masculino', imgUrl: 'https://source.unsplash.com/150x150/?man,fashion', link: '/loja?categoria=masculino' },
-  { id: 3, name: 'Infantil', imgUrl: 'https://source.unsplash.com/150x150/?kids,clothing', link: '/loja?categoria=infantil' },
-  { id: 4, name: 'Calçados', imgUrl: 'https://source.unsplash.com/150x150/?shoes,sneakers', link: '/loja?categoria=calcados' },
-  { id: 5, name: 'Casa', imgUrl: 'https://source.unsplash.com/150x150/?home,decor', link: '/loja?categoria=casa' },
-  { id: 6, name: 'Acessórios', imgUrl: 'https://source.unsplash.com/150x150/?watch,accessories', link: '/loja?categoria=acessorios' },
-  { id: 7, name: 'Beleza', imgUrl: 'https://source.unsplash.com/150x150/?makeup,beauty', link: '/loja?categoria=beleza' },
-  { id: 8, name: 'Novidades', imgUrl: 'https://source.unsplash.com/150x150/?new,style', link: '/loja?categoria=novidades' },
-  { id: 9, name: 'Ofertas', imgUrl: 'https://source.unsplash.com/150x150/?sale,tag', link: '/loja?categoria=ofertas' },
+  { id: 1, name: 'Feminino', imgUrl: 'https://picsum.photos/seed/feminino/150/150', link: '/loja?categoria=feminino' },
+  { id: 2, name: 'Masculino', imgUrl: 'https://picsum.photos/seed/masculino/150/150', link: '/loja?categoria=masculino' },
+  { id: 3, name: 'Infantil', imgUrl: 'https://picsum.photos/seed/infantil/150/150', link: '/loja?categoria=infantil' },
+  { id: 4, name: 'Calçados', imgUrl: 'https://picsum.photos/seed/calcados/150/150', link: '/loja?categoria=calcados' },
+  { id: 5, name: 'Casa', imgUrl: 'https://picsum.photos/seed/casa/150/150', link: '/loja?categoria=casa' },
+  { id: 6, name: 'Acessórios', imgUrl: 'https://picsum.photos/seed/acessorios/150/150', link: '/loja?categoria=acessorios' },
+  { id: 7, name: 'Beleza', imgUrl: 'https://picsum.photos/seed/beleza/150/150', link: '/loja?categoria=beleza' },
+  { id: 8, name: 'Novidades', imgUrl: 'https://picsum.photos/seed/novidades/150/150', link: '/loja?categoria=novidades' },
+  { id: 9, name: 'Ofertas', imgUrl: 'https://picsum.photos/seed/ofertas/150/150', link: '/loja?categoria=ofertas' },
 ];
 
 /**
@@ -40,7 +41,7 @@ const CategoryBubbles = () => {
         modules={[FreeMode]}
         slidesPerView={'auto'} // Chave para o layout responsivo
         spaceBetween={16}     // Espaço entre as bolhas
-        freeMode={true}         // Permite "arrastar" livremente
+        freeMode={true}       // Permite "arrastar" livremente
         
         // Configuração de breakpoints (Responsividade)
         breakpoints={{

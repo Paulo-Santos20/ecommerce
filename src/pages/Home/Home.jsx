@@ -59,12 +59,10 @@ const Home = () => {
     <div className={styles.homePage}>
       <HeroCarousel />
       <section className={`${styles.homeSection} ${styles.categorySection} container`}>
-        <h2 className={styles.sectionTitle}>Navegue por Categorias</h2>
         <CategoryBubbles />
       </section>
       <section className={`${styles.homeSection} ${styles.promoSection}`}>
         <div className="container">
-          <h2 className={styles.sectionTitle}>Conheça Nossas Ofertas</h2>
           <PromoBanners />
         </div>
       </section>

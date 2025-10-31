@@ -52,7 +52,7 @@
 .rightIcons {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Reduzido para mobile */
+  gap: 1rem; /* Gap menor para mobile */
 }
 
 /* --- Wrappers de Ícone (Para Dropdowns) --- */
@@ -89,14 +89,14 @@
 }
 
 /* Esconde elementos de Desktop no Mobile */
-.searchBarDesktop,
-.desktopUserButton, /* Nome corrigido */
+.searchWrapper, /* Wrapper da busca desktop escondido */
+.desktopUserButton,
 .desktopCartText,
 .categoryNav {
   display: none;
 }
 
-/* === Mini Carrinho Dropdown === */
+/* --- Mini Carrinho Dropdown --- */
 .miniCartDropdown {
   position: absolute;
   top: calc(100% + 15px); 
@@ -325,6 +325,7 @@
   color: var(--color-primary);
 }
 
+
 /* === Overlays Mobile === */
 .mobileBackdrop {
   position: fixed;
@@ -396,13 +397,12 @@
   border-top: 1px solid var(--color-border);
 }
 
-/* Pesquisa Mobile */
+/* === Pesquisa Mobile (com Dropdown) === */
 .searchMobile {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 60px; 
   background-color: var(--color-highlight);
   z-index: 1001;
   transform: translateY(-100%);
@@ -413,10 +413,12 @@
 .searchMobile.isOpen {
   transform: translateY(0);
 }
+/* O container da busca mobile vira o <form> */
 .searchMobile .container {
   display: flex;
   align-items: center;
-  height: 100%;
+  height: 60px;
+  position: relative; /* Para o dropdown mobile */
 }
 .searchMobileBack {
   font-size: 2rem;
@@ -440,6 +442,103 @@
   cursor: pointer;
   padding: 0.5rem;
 }
+
+
+/* --- ESTILOS DE SUGESTÃO DE BUSCA (FALTANDO) --- */
+.searchWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 600px;
+  display: none; /* Escondido no mobile (corrigido no @media) */
+}
+
+.searchBarDesktop {
+  display: flex;
+  width: 100%;
+  height: 44px;
+}
+.searchBarDesktop input {
+  width: 100%;
+  font-size: 1.5rem;
+  padding: 0 1.5rem;
+  border: 1px solid var(--color-border);
+  border-right: none;
+  border-radius: 5px 0 0 5px;
+  outline: none; 
+}
+.searchBarDesktop input:focus {
+   border-color: var(--color-primary); 
+   box-shadow: 0 0 0 2px rgba(128,0,0, 0.1);
+}
+.searchBarDesktop button {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  width: 50px;
+  font-size: 1.8rem;
+  border-radius: 0 5px 5px 0;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+ .searchBarDesktop button:hover {
+   background-color: #a00000;
+ }
+
+/* Dropdown de Sugestões (Desktop e Mobile) */
+.searchResultsDropdown {
+  position: absolute;
+  top: calc(100% + 5px); 
+  left: 0;
+  right: 0;
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-top: none; /* Remove borda dupla */
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  z-index: 999; /* Abaixo dos menus principais */
+  overflow: hidden;
+}
+/* No mobile, o dropdown se anexa ao form */
+.searchMobile .searchResultsDropdown {
+  top: 100%; 
+  border-top: 1px solid var(--color-border);
+}
+
+.searchResultsDropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.searchResultsDropdown li {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-background);
+}
+.searchResultsDropdown li:last-child {
+  border-bottom: none;
+}
+.searchResultsDropdown li:hover {
+  background-color: #f5f5f5;
+}
+.searchResultsDropdown li svg {
+  color: #888;
+}
+.searchResultsDropdown li span {
+  flex-grow: 1; 
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+.searchResultsDropdown li small {
+  font-size: 1.2rem;
+  color: #777;
+  font-style: italic;
+}
+/* --- FIM DOS ESTILOS DE SUGESTÃO --- */
+
 
 /*
 =========================================
@@ -467,44 +566,16 @@
     margin-right: 2rem;
   }
 
-  .searchBarDesktop {
-    display: flex;
-    flex: 1; 
-    max-width: 600px;
-    height: 44px;
+  /* Mostra o wrapper da busca (que contém a barra) */
+  .searchWrapper {
+    display: block; 
   }
-  .searchBarDesktop input {
-    width: 100%;
-    font-size: 1.5rem;
-    padding: 0 1.5rem;
-    border: 1px solid var(--color-border);
-    border-right: none;
-    border-radius: 5px 0 0 5px;
-    outline: none; 
-  }
-  .searchBarDesktop input:focus {
-     border-color: var(--color-primary); 
-  }
-  .searchBarDesktop button {
-    background-color: var(--color-primary);
-    color: var(--color-highlight);
-    width: 50px;
-    font-size: 1.8rem;
-    border-radius: 0 5px 5px 0;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-   .searchBarDesktop button:hover {
-     background-color: #a00000;
-   }
 
   .rightIcons {
     gap: 2.5rem;
     margin-left: 2rem; 
   }
 
-  /* Botão de Usuário (Desktop) */
   .desktopUserButton {
     display: flex;
     align-items: center;

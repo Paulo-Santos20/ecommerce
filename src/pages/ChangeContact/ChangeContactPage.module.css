@@ -1,0 +1,80 @@
+/* Este CSS é muito similar ao MyAccountPage.module.css */
+.pageWrapper {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+  min-height: 60vh;
+}
+
+.title {
+  font-size: 3rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1rem;
+}
+
+.formCard {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  padding: 2rem 3rem;
+  max-width: 800px;
+  margin: 0 auto 2rem auto; /* Centraliza e adiciona espaço entre os cards */
+}
+.formCard h2 {
+    font-size: 2.2rem;
+    color: var(--color-text-dark);
+    margin-bottom: 0.5rem;
+}
+.description {
+    font-size: 1.5rem;
+    color: #555;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+.formGroup label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.formGroup input {
+  font-size: 1.6rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  width: 100%;
+}
+
+.error {
+  color: red;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 1.2rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.submitButton:disabled {
+  background-color: #aaa;
+}

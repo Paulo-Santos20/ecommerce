@@ -216,3 +216,59 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+/* ... (Mantenha todos os seus estilos anteriores) ... */
+
+/* --- NOVOS ESTILOS (Seleção de Endereço) --- */
+.addressSelector {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 1.5rem;
+}
+
+.addressCard {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fdfdfd;
+}
+.addressCard:hover {
+  background-color: var(--color-background);
+  border-color: #ccc;
+}
+.addressCard.selectedCard {
+  border-color: var(--color-primary);
+  background-color: #fffaf0;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.addressCard svg {
+  font-size: 2rem;
+  color: var(--color-border);
+}
+.addressCard.selectedCard svg {
+  color: var(--color-primary);
+}
+
+.addressInfo strong {
+  font-size: 1.6rem;
+  color: var(--color-text-dark);
+  display: block;
+}
+.addressInfo p {
+  font-size: 1.4rem;
+  color: #555;
+  margin: 0;
+}
+
+/* --- Media Queries --- */
+@media (min-width: 992px) {
+  /* ... (Regras .checkoutGrid, .formRow inalteradas) ... */
+  
+  .addressSelector {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas desktop */
+  }
+}

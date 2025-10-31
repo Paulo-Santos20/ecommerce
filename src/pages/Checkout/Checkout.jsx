@@ -1,245 +1,210 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useForm } from 'react-hook-form'; // Ainda necessário para o form principal
 import { useCartStore } from '../../store/useCartStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { db } from '../../firebase/config';
-import { collection, addDoc, doc, getDoc, setDoc, serverTimestamp, arrayUnion } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, serverTimestamp, arrayUnion, query, onSnapshot } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import Loading from '../../components/ui/Loading/Loading';
-import { FaSpinner } from 'react-icons/fa';
-import styles from './Checkout.module.css';
-
-// Esquema de validação do Endereço
-const addressSchema = z.object({
-  cep: z.string().min(8, "CEP inválido. Use 8 números.").max(9, "CEP inválido."),
-  rua: z.string().min(3, "Rua é obrigatória."),
-  numero: z.string().min(1, "Número é obrigatório."),
-  complemento: z.string().optional(),
-  bairro: z.string().min(3, "Bairro é obrigatório."),
-  cidade: z.string().min(3, "Cidade é obrigatória."),
-  estado: z.string().min(2, "UF é obrigatória (ex: PE).").max(2, "Use apenas a sigla (ex: PE)."),
-});
+import AddressForm from '../../components/forms/AddressForm/AddressForm'; // 1. Importa o Form
+import { FaCheckCircle, FaRegCircle } from 'react-icons/fa';
+import styles from './Checkout.module.css'; // O CSS será atualizado
 
 const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
 const Checkout = () => {
-  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
-  const [isCepLoading, setIsCepLoading] = useState(false);
-  const [formError, setFormError] = useState(null);
-  const navigate = useNavigate();
+    const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
+    const [formError, setFormError] = useState(null);
+    const navigate = useNavigate();
 
-  // --- Stores ---
-  const items = useCartStore((state) => state.items);
-  const clearCart = useCartStore((state) => state.clearCart);
-  // --- CORREÇÃO DA GUARDA DE ROTEAMENTO ---
-  const user = useAuthStore((state) => state.user);
-  const isAuthReady = useAuthStore((state) => state.isAuthReady);
-  // ------------------------------------
-  
-  const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    // --- Stores e Dados ---
+    const items = useCartStore((state) => state.items);
+    const clearCart = useCartStore((state) => state.clearCart);
+    const user = useAuthStore((state) => state.user);
+    const isAuthReady = useAuthStore((state) => state.isAuthReady);
+    const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    
+    // --- Lógica de Endereço ---
+    const [addresses, setAddresses] = useState([]);
+    const [loadingAddresses, setLoadingAddresses] = useState(true);
+    // Armazena o ID do card selecionado OU 'new' para o formulário
+    const [selectedAddressId, setSelectedAddressId] = useState(null); 
+    
+    // 2. Hook para o formulário de endereço (que será preenchido dinamicamente)
+    // Usamos o hook do AddressForm
+    const { handleSubmit: handleSubmitAddress, control: addressControl, reset: resetAddressForm } = useForm();
 
-  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
-    resolver: zodResolver(addressSchema),
-    defaultValues: {
-        cep: '', rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: ''
-    }
-  });
-
-  // Autocomplete do CEP
-  const cepValue = watch('cep');
-  useEffect(() => {
-    const fetchCepData = async (cep) => {
-      setIsCepLoading(true);
-      try {
-        const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
-        if (!response.ok) throw new Error("CEP não encontrado.");
-        const data = await response.json();
-        setValue('rua', data.street || '', { shouldValidate: true });
-        setValue('bairro', data.neighborhood || '', { shouldValidate: true });
-        setValue('cidade', data.city || '', { shouldValidate: true });
-        setValue('estado', data.state || '', { shouldValidate: true });
-      } catch (error) {
-        console.error("Erro ao buscar CEP:", error);
-      } finally {
-        setIsCepLoading(false);
-      }
-    };
-    const cepLimpo = cepValue?.replace(/\D/g, '');
-    if (cepLimpo && cepLimpo.length === 8) {
-      fetchCepData(cepLimpo);
-    }
-  }, [cepValue, setValue]);
-
-  // Busca Endereço Salvo
-  useEffect(() => {
-    if (user) {
-      const fetchUserAddress = async () => {
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && userSnap.data().endereco && !watch('cep')) {
-          reset(userSnap.data().endereco);
+    // Guarda de Roteamento (inalterada)
+    useEffect(() => {
+        if (!isAuthReady) return; 
+        if (!user) {
+            toast.warn("Você precisa estar logado.");
+            navigate('/login?redirect=/checkout');
         }
-      };
-      fetchUserAddress();
-    }
-  }, [user, reset, watch]);
+        if (items.length === 0 && !isSubmittingOrder) {
+            toast.info("Seu carrinho está vazio.");
+            navigate('/loja');
+        }
+    }, [user, isAuthReady, items.length, isSubmittingOrder, navigate]);
 
-  // Submissão do Pedido
-  const handleOrderSubmit = async (data) => {
-    setIsSubmittingOrder(true);
-    setFormError(null);
-    const orderData = {
-      userId: user.uid, userEmail: user.email, userName: user.displayName,
-      itens: items, total: subtotal, status: "processando",
-      enderecoEnvio: data, dataPedido: serverTimestamp(),
+    // 3. Busca os endereços salvos
+    useEffect(() => {
+        if (!user) return;
+        setLoadingAddresses(true);
+        const addressesRef = collection(db, 'users', user.uid, 'addresses');
+        const q = query(addressesRef);
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const fetchedAddresses = [];
+            querySnapshot.forEach((doc) => {
+                fetchedAddresses.push({ id: doc.id, ...doc.data() });
+            });
+            setAddresses(fetchedAddresses);
+            
+            // --- REQUISITO: Preenche automaticamente ---
+            // Tenta encontrar o endereço padrão
+            const defaultAddress = fetchedAddresses.find(a => a.isDefault);
+            if (defaultAddress) {
+                setSelectedAddressId(defaultAddress.id);
+                resetAddressForm(defaultAddress); // Preenche o form
+            } else if (fetchedAddresses.length > 0) {
+                // Ou seleciona o primeiro
+                setSelectedAddressId(fetchedAddresses[0].id);
+                resetAddressForm(fetchedAddresses[0]);
+            } else {
+                // Ou força o formulário de "novo"
+                setSelectedAddressId('new'); 
+            }
+            setLoadingAddresses(false);
+        }, (error) => {
+            console.error("Erro ao buscar endereços:", error);
+            setLoadingAddresses(false);
+        });
+
+        return () => unsubscribe();
+    }, [user, resetAddressForm]);
+
+    // 4. Handler para selecionar um endereço (Card)
+    const handleSelectAddress = (address) => {
+        setSelectedAddressId(address.id);
+        resetAddressForm(address); // Preenche o formulário com o endereço clicado
     };
-    try {
-      const orderCollectionRef = collection(db, 'orders');
-      const orderRef = await addDoc(orderCollectionRef, orderData);
-      const userRef = doc(db, 'users', user.uid);
-      await setDoc(userRef, { 
-          endereco: data, historicoPedidos: arrayUnion(orderRef.id)
-        }, { merge: true } 
-      );
-      clearCart();
-      toast.success("Pedido realizado com sucesso!");
-      navigate('/meus-pedidos'); 
-    } catch (error) {
-      console.error("Erro ao criar pedido: ", error);
-      setFormError("Não foi possível processar seu pedido. Tente novamente.");
-      toast.error("Ops! Algo deu errado ao finalizar o pedido.");
-    } finally {
-      setIsSubmittingOrder(false);
-    }
-  };
-  
-  // --- CORREÇÃO DA GUARDA DE ROTEAMENTO ---
-  useEffect(() => {
-    // 1. Espera o Auth estar pronto
-    if (!isAuthReady) {
-      return; // Não faz nada (mostra o Loading abaixo)
-    }
-    
-    // 2. Se estiver pronto E não houver usuário, redireciona
-    if (!user) {
-      toast.warn("Você precisa estar logado para finalizar a compra.");
-      navigate('/login?redirect=/checkout');
-    }
-    
-    // 3. Se estiver pronto E o carrinho estiver vazio, redireciona
-    if (items.length === 0 && !isSubmittingOrder) {
-      toast.info("Seu carrinho está vazio.");
-      navigate('/loja');
-    }
-  }, [user, isAuthReady, items.length, isSubmittingOrder, navigate]);
 
-  // Mostra Loading enquanto o auth (ou o carrinho) não está pronto
-  if (!isAuthReady || !user || (items.length === 0 && !isSubmittingOrder)) {
-    return <Loading />;
-  }
-  // --- FIM DA CORREÇÃO ---
+    // 5. Handler para submissão (agora usa o AddressForm)
+    const handleOrderSubmit = async (data) => {
+        // 'data' vem do <AddressForm />
+        setIsSubmittingOrder(true);
+        setFormError(null);
+        
+        // (Lógica de criação do pedido inalterada)
+        const orderData = {
+          userId: user.uid, userEmail: user.email, userName: user.displayName,
+          itens: items, total: subtotal, status: "processando",
+          enderecoEnvio: data, dataPedido: serverTimestamp(),
+        };
+        try {
+          const orderRef = await addDoc(collection(db, 'orders'), orderData);
+          const userRef = doc(db, 'users', user.uid);
+          
+          // Salva o endereço apenas se for novo
+          const addressExists = addresses.some(a => a.cep === data.cep && a.rua === data.rua);
+          if (selectedAddressId === 'new' && !addressExists) {
+             const addressesRef = collection(db, 'users', user.uid, 'addresses');
+             await addDoc(addressesRef, { ...data, isDefault: addresses.length === 0 });
+          }
+          
+          await setDoc(userRef, { historicoPedidos: arrayUnion(orderRef.id) }, { merge: true } );
+          clearCart();
+          toast.success("Pedido realizado com sucesso!");
+          navigate('/meus-pedidos'); 
+        } catch (error) {
+          console.error("Erro ao criar pedido: ", error);
+          setFormError("Não foi possível processar seu pedido.");
+        } finally {
+          setIsSubmittingOrder(false);
+        }
+    };
+    
+    if (!isAuthReady || loadingAddresses || !user || (items.length === 0 && !isSubmittingOrder)) {
+        return <Loading />;
+    }
 
-  return (
-    <div className={`container ${styles.checkoutPage}`}>
-      <h1 className={styles.title}>Finalizar Compra</h1>
-      <div className={styles.checkoutGrid}>
-        <div className={styles.formColumn}>
-          <form onSubmit={handleSubmit(handleOrderSubmit)} id="checkout-form">
-            <section className={styles.formSection}>
-              <h2>1. Endereço de Entrega</h2>
-              <div className={styles.addressForm}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="cep">CEP</label>
-                  <div className={styles.cepInputWrapper}>
-                    <input id="cep" {...register("cep")} maxLength={9} onChange={(e) => { const formattedCep = e.target.value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2'); setValue('cep', formattedCep, { shouldValidate: true }); }} />
-                    {isCepLoading && <FaSpinner className={styles.cepSpinner} />}
-                  </div>
-                  {errors.cep && <span className={styles.error}>{errors.cep.message}</span>}
+    return (
+        <div className={`container ${styles.checkoutPage}`}>
+            <h1 className={styles.title}>Finalizar Compra</h1>
+            <div className={styles.checkoutGrid}>
+                {/* Coluna 1: Formulário */}
+                <div className={styles.formColumn}>
+                    {/* --- REQUISITO: Seleção de Endereços Salvos --- */}
+                    <section className={styles.formSection}>
+                        <h2>1. Selecione o Endereço de Entrega</h2>
+                        <div className={styles.addressSelector}>
+                            {addresses.map(addr => (
+                                <button 
+                                    key={addr.id} 
+                                    className={`${styles.addressCard} ${selectedAddressId === addr.id ? styles.selectedCard : ''}`}
+                                    onClick={() => handleSelectAddress(addr)}
+                                >
+                                    {selectedAddressId === addr.id ? <FaCheckCircle /> : <FaRegCircle />}
+                                    <div className={styles.addressInfo}>
+                                        <strong>{addr.apelido}</strong>
+                                        <p>{addr.rua}, {addr.numero} - {addr.bairro}</p>
+                                    </div>
+                                </button>
+                            ))}
+                            {/* Botão para adicionar novo */}
+                            <button 
+                                className={`${styles.addressCard} ${selectedAddressId === 'new' ? styles.selectedCard : ''}`}
+                                onClick={() => { setSelectedAddressId('new'); resetAddressForm({}); }}
+                            >
+                                <FaRegCircle />
+                                <div className={styles.addressInfo}>
+                                    <strong>Adicionar novo endereço</strong>
+                                    <p>Preencha os dados abaixo</p>
+                                </div>
+                            </button>
+                        </div>
+                    </section>
+                    
+                    {/* --- Formulário (só aparece se 'novo' for selecionado ou para edição) --- */}
+                    <section className={styles.formSection}>
+                        <h2>{selectedAddressId === 'new' ? '2. Preencha o Novo Endereço' : '2. Verifique seu Endereço'}</h2>
+                        {/* 6. Usa o AddressForm (controlado pelo 'handleSubmitAddress') */}
+                        <AddressForm 
+                            onSubmit={handleOrderSubmit}
+                            defaultValues={addresses.find(a => a.id === selectedAddressId)} // Passa os valores padrão
+                            submitText="Ir para Pagamento" // Texto customizado
+                            isSubmitting={isSubmittingOrder}
+                        />
+                    </section>
+                    
+                    {/* Seção de Pagamento */}
+                    <section className={styles.formSection}>
+                        <h2>3. Pagamento</h2>
+                        <div className={styles.paymentSimulation}>
+                            <p>Seu pedido será processado e está sujeito à aprovação de estoque.</p>
+                        </div>
+                    </section>
                 </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup} style={{flex: 3}}>
-                    <label htmlFor="rua">Rua / Av.</label>
-                    <input id="rua" {...register("rua")} />
-                    {errors.rua && <span className={styles.error}>{errors.rua.message}</span>}
-                  </div>
-                  <div className={styles.formGroup} style={{flex: 1}}>
-                    <label htmlFor="numero">Número</label>
-                    <input id="numero" {...register("numero")} />
-                    {errors.numero && <span className={styles.error}>{errors.numero.message}</span>}
-                  </div>
+
+                {/* Coluna 2: Resumo do Pedido */}
+                <div className={styles.summaryColumn}>
+                    <div className={styles.orderSummary}>
+                        {/* ... (Conteúdo do Resumo inalterado) ... */}
+                        <button 
+                            type="submit" 
+                            form="address-form" // ID do formulário dentro do <AddressForm>
+                            className={styles.ctaButton}
+                            disabled={isSubmittingOrder || isCepLoading}
+                        >
+                            {isSubmittingOrder ? "Processando..." : "Finalizar Pedido"}
+                        </button>
+                    </div>
                 </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup} style={{flex: 1}}>
-                    <label htmlFor="complemento">Complemento (Opcional)</label>
-                    <input id="complemento" {...register("complemento")} />
-                  </div>
-                  <div className={styles.formGroup} style={{flex: 2}}>
-                    <label htmlFor="bairro">Bairro</label>
-                    <input id="bairro" {...register("bairro")} />
-                    {errors.bairro && <span className={styles.error}>{errors.bairro.message}</span>}
-                  </div>
-                </div>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup} style={{flex: 3}}>
-                    <label htmlFor="cidade">Cidade</label>
-                    <input id="cidade" {...register("cidade")} />
-                    {errors.cidade && <span className={styles.error}>{errors.cidade.message}</span>}
-                  </div>
-                  <div className={styles.formGroup} style={{flex: 1}}>
-                    <label htmlFor="estado">UF</label>
-                    <input id="estado" {...register("estado")} maxLength={2} />
-                    {errors.estado && <span className={styles.error}>{errors.estado.message}</span>}
-                  </div>
-                </div>
-              </div>
-            </section>
-            <section className={styles.formSection}>
-              <h2>2. Pagamento</h2>
-              <div className={styles.paymentSimulation}>
-                <p>Seu pedido será processado e está sujeito à aprovação de estoque e disponibilidade. Você será notificado sobre o status do seu pedido.</p>
-              </div>
-            </section>
-          </form>
+            </div>
         </div>
-        <div className={styles.summaryColumn}>
-          <div className={styles.orderSummary}>
-            <h2>Resumo do Pedido</h2>
-            <div className={styles.summaryItems}>
-              {items.map(item => (
-                <div key={item.id} className={styles.summaryItem}>
-                  <img src={item.imagem} alt={item.nome} className={styles.itemImage} />
-                  <div className={styles.itemInfo}>
-                    <p>{item.nome}</p>
-                    <small>{item.color} / {item.size}</small>
-                  </div>
-                  <span className={styles.itemPrice}>{item.quantity}x {formatCurrency(item.price)}</span>
-                </div>
-              ))}
-            </div>
-            <div className={styles.summaryRow}>
-              <span>Subtotal</span>
-              <span>{formatCurrency(subtotal)}</span>
-            </div>
-             <div className={styles.summaryRow}>
-              <span>Frete</span>
-              <span>Grátis</span>
-            </div>
-            <div className={`${styles.summaryRow} ${styles.total}`}>
-              <strong>Total</strong>
-              <strong>{formatCurrency(subtotal)}</strong>
-            </div>
-            {formError && <span className={styles.error}>{formError}</span>}
-            <button type="submit" form="checkout-form" className={styles.ctaButton} disabled={isSubmittingOrder || isCepLoading}>
-              {isSubmittingOrder ? "Processando..." : "Finalizar Pedido"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Checkout;

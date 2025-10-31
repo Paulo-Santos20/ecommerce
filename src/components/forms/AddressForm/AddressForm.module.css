@@ -1,0 +1,76 @@
+/* Este CSS é 90% movido do Checkout.module.css */
+.addressForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.formGroup label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.formGroup input {
+  font-size: 1.6rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+.error {
+  color: red;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+.cepInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.cepInputWrapper input {
+  padding-right: 40px;
+}
+.cepSpinner {
+  position: absolute;
+  right: 12px;
+  color: var(--color-primary);
+  font-size: 1.6rem;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 1.2rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.submitButton:disabled {
+  background-color: #aaa;
+}
+
+/* Responsividade */
+@media (min-width: 768px) {
+  .formRow {
+    flex-direction: row; /* Lado a lado */
+  }
+}
