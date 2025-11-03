@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { doc, getDoc, collection, query, where, limit, getDocs } from 'firebase/firestore';
-import { db } from '../../firebase/config'; // Verifique o caminho
-import { useCartStore } from '../../store/useCartStore'; // Verifique o caminho
-import { useAuthStore } from '../../store/useAuthStore'; // Verifique o caminho
-import { useRecentlyViewed } from '../../hooks/useRecentlyViewed'; // 1. IMPORTADO
+import { db } from '../../firebase/config';
+import { useCartStore } from '../../store/useCartStore';
+import { useAuthStore } from '../../store/useAuthStore';
+import { useRecentlyViewed } from '../../hooks/useRecentlyViewed'; // 1. Importa o hook
 import { toast } from 'react-toastify';
-import { FaHeart, FaShippingFast, FaSpinner, FaStar, FaEdit } from 'react-icons/fa';
+import { 
+    FaHeart, FaShippingFast, FaSpinner, FaStar, FaEdit, 
+    FaBell, FaExclamationCircle // Ícones para o estado inativo
+} from 'react-icons/fa';
 import Loading from '../../components/ui/Loading/Loading';
 import ProductGallery from '../../components/ui/ProductGallery/ProductGallery';
 import Accordion from '../../components/ui/Accordion/Accordion';
 import ProductCarousel from '../../components/ui/ProductCarousel/ProductCarousel';
-// Importa os placeholders (assumindo que existem)
+// Importa os componentes de placeholder
 import ReviewForm from '../../components/forms/ReviewForm/ReviewForm';
 import ReviewList from '../../components/ui/ReviewList/ReviewList';
 import QuestionForm from '../../components/forms/QuestionForm/QuestionForm';
@@ -29,7 +32,10 @@ const formatCurrency = (value) => {
 const isSaleActive = (product) => {
     if (!product?.onSale) return false;
     if (product.onSale && !product.offerEndDate) return true; // Promo permanente
-    return product.offerEndDate?.toDate() > new Date(); // Verifica data
+    // Garante que é um Timestamp antes de chamar toDate()
+    return product.offerEndDate && typeof product.offerEndDate.toDate === 'function'
+           ? product.offerEndDate.toDate() > new Date()
+           : false;
 };
 
 // Acessa a variável de ambiente no topo do módulo
@@ -40,7 +46,7 @@ const ProductPage = () => {
     const { id: productId } = useParams();
     const addItemToCart = useCartStore((state) => state.addItem);
     const user = useAuthStore((state) => state.user);
-    const { addProduct: addRecentlyViewed } = useRecentlyViewed(); // 2. HOOK ATIVADO
+    const { addProduct: addRecentlyViewed } = useRecentlyViewed(); // 2. Chama o hook
 
     // Estados
     const [product, setProduct] = useState(null);
@@ -70,13 +76,16 @@ const ProductPage = () => {
                 const docSnap = await getDoc(docRef);
                 if (docSnap.exists()) {
                     const data = docSnap.data();
-                    if (!data.variants || data.variants.length === 0) {
-                        throw new Error("Produto sem variantes cadastradas.");
-                    }
                     const fullProduct = { id: docSnap.id, ...data };
+                    
                     setProduct(fullProduct);
                     setSaleIsActiveState(isSaleActive(fullProduct));
-                    setSelectedColor(data.variants[0].color); // Cor padrão
+                    
+                    if (data.variants && data.variants.length > 0) {
+                        setSelectedColor(data.variants[0].color); 
+                    } else if (data.isActive) { // Só dá erro se for ativo e não tiver variantes
+                        throw new Error("Produto sem variantes cadastradas.");
+                    }
 
                     // --- 3. ADICIONADO AQUI ---
                     // Salva o ID deste produto na lista de "vistos recentemente"
@@ -153,6 +162,12 @@ const ProductPage = () => {
         finally { setShippingLoading(false); }
     };
 
+    // Handler para "Avise-me"
+    const handleNotifyMe = () => {
+        // TODO: Implementar lógica de "Avise-me"
+        toast.info("Avisaremos você por e-mail quando este produto voltar!");
+    };
+
     // --- Render Logic ---
     if (loading) return <Loading />;
 
@@ -164,7 +179,8 @@ const ProductPage = () => {
         </div>
     );
 
-    if (!product?.variants?.length) return (
+    // Se o produto não tiver variantes (mas não deu erro de loading)
+    if (!product?.variants) return (
         <div className="container" style={{ textAlign: 'center', padding: '4rem' }}>
             <h1 style={{ color: 'var(--color-primary)', fontSize: '2.4rem' }}>Erro</h1>
             <p style={{ fontSize: '1.6rem', marginBottom: '2rem' }}>Dados do produto inválidos ou incompletos.</p>
@@ -173,10 +189,15 @@ const ProductPage = () => {
     );
 
     // --- Cálculo de Preços (após as verificações) ---
-    const displayPrice = selectedVariant ? selectedVariant.price : (product.variants[0]?.price ?? 0);
+    // Garante que product.variants[0] existe antes de acessá-lo
+    const defaultPrice = product.variants.length > 0 ? product.variants[0].price : 0;
+    const displayPrice = selectedVariant ? selectedVariant.price : defaultPrice;
     const displayOldPrice = saleIsActiveState && selectedVariant && selectedVariant.oldPrice > selectedVariant.price ? selectedVariant.oldPrice : null;
     const showFromPrice = !selectedVariant && product.variants.length > 1;
     const installmentPrice = typeof displayPrice === 'number' && displayPrice > 0 ? (displayPrice / 5).toFixed(2) : '--,--';
+    
+    // Verifica se o produto está ATIVO (padrão é true se o campo não existir)
+    const isActive = product.isActive === undefined ? true : product.isActive;
 
     // --- JSX Principal ---
     return (
@@ -190,59 +211,74 @@ const ProductPage = () => {
                 {/* Coluna 2: Informações */}
                 <div className={styles.infoColumn}>
                     <h1 className={styles.title}>{product.nome}</h1>
-                    {saleIsActiveState && <span className={styles.saleTag}>PROMOÇÃO</span>}
+                    {/* Mostra tag de promoção SÓ SE estiver ativo E em promoção */}
+                    {isActive && saleIsActiveState && <span className={styles.saleTag}>PROMOÇÃO</span>}
 
-                    {/* Preços */}
-                    <div className={styles.priceSection}>
-                        {displayOldPrice !== null && (<span className={styles.oldPrice}>{formatCurrency(displayOldPrice)}</span>)}
-                        <span className={styles.price}>{formatCurrency(displayPrice)}</span>
-                        <span className={styles.installments}>{showFromPrice ? 'A partir de ' : ''}ou 5x de R$ {installmentPrice} sem juros</span>
-                    </div>
-
-                    {/* Seleção de Cor */}
-                    <div className={styles.selectorGroup}>
-                        <label>Cor: <strong>{selectedColor || 'Selecione'}</strong></label>
-                        <div className={styles.swatches}>
-                            {availableColors.map(color => (<button key={color} className={`${styles.swatch} ${selectedColor === color ? styles.activeSwatch : ''}`} title={color} onClick={() => handleSelectColor(color)}>{color}</button>))}
-                        </div>
-                    </div>
-
-                    {/* Seleção de Tamanho */}
-                    <div className={styles.selectorGroup}>
-                        <label>Tamanho:</label>
-                        <div className={styles.sizeButtons}>
-                            {availableSizes.length > 0 ? (
-                                availableSizes.map(size => (<button key={size} className={`${styles.sizeBtn} ${selectedSize === size ? styles.activeSize : ''}`} onClick={() => handleSelectSize(size)} disabled={!selectedColor}>{size}</button>))
-                            ) : (<span className={styles.noSizeText}>Selecione uma cor para ver os tamanhos.</span>)}
-                        </div>
-                        {selectionError && (<span className={styles.errorText}>{selectionError}</span>)}
-                    </div>
-
-                    {/* Botões de Ação */}
-                    <div className={styles.actionButtons}>
-                        <button onClick={handleAddToCart} className={styles.btnAddToCart} disabled={!selectedVariant || selectedVariant.stock <= 0}>
-                            {selectedVariant && selectedVariant.stock <= 0 ? "Fora de Estoque" : "Adicionar ao Carrinho"}
-                        </button>
-                        <button className={styles.btnFavorite} aria-label="Adicionar aos favoritos"><FaHeart /></button>
-                    </div>
-
-                    {/* Calculadora de Frete */}
-                    <div className={styles.shippingCalculator}>
-                        <label htmlFor="cep"><FaShippingFast /> Calcular frete e prazo</label>
-                        <div className={styles.shippingForm}>
-                            <input id="cep" type="text" placeholder="Digite seu CEP" maxLength={9} value={cep} onChange={(e) => { const formattedCep = e.target.value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2'); setCep(formattedCep); setShippingError(null); setShippingInfo(null); }} />
-                            <button onClick={handleCalculateShipping} disabled={shippingLoading}>
-                                {shippingLoading ? <FaSpinner className={styles.spinner} /> : 'Calcular'}
-                            </button>
-                        </div>
-                        {shippingError && <p className={styles.shippingError}>{shippingError}</p>}
-                        {shippingInfo && (
-                            <div className={styles.shippingResult}>
-                                <p>Entrega para {shippingInfo.city}, {shippingInfo.state}:</p>
-                                <p><strong>Valor: {formatCurrency(shippingInfo.cost)}</strong> (até {shippingInfo.days} dias úteis)</p>
+                    {/* --- LÓGICA: ATIVO vs INATIVO --- */}
+                    {isActive ? (
+                        <>
+                            {/* Produto ATIVO - Mostra Preços e Seletores */}
+                            <div className={styles.priceSection}>
+                                {displayOldPrice !== null && (<span className={styles.oldPrice}>{formatCurrency(displayOldPrice)}</span>)}
+                                <span className={styles.price}>{formatCurrency(displayPrice)}</span>
+                                <span className={styles.installments}>{showFromPrice ? 'A partir de ' : ''}ou 5x de R$ {installmentPrice} sem juros</span>
                             </div>
-                        )}
-                    </div>
+                            <div className={styles.selectorGroup}>
+                                <label>Cor: <strong>{selectedColor || 'Selecione'}</strong></label>
+                                <div className={styles.swatches}>
+                                    {availableColors.map(color => (<button key={color} className={`${styles.swatch} ${selectedColor === color ? styles.activeSwatch : ''}`} title={color} onClick={() => handleSelectColor(color)}>{color}</button>))}
+                                </div>
+                            </div>
+                            <div className={styles.selectorGroup}>
+                                <label>Tamanho:</label>
+                                <div className={styles.sizeButtons}>
+                                    {availableSizes.length > 0 ? (
+                                        availableSizes.map(size => (<button key={size} className={`${styles.sizeBtn} ${selectedSize === size ? styles.activeSize : ''}`} onClick={() => handleSelectSize(size)} disabled={!selectedColor}>{size}</button>))
+                                    ) : (<span className={styles.noSizeText}>Selecione uma cor para ver os tamanhos.</span>)}
+                                </div>
+                                {selectionError && (<span className={styles.errorText}>{selectionError}</span>)}
+                            </div>
+                            <div className={styles.actionButtons}>
+                                <button onClick={handleAddToCart} className={styles.btnAddToCart} disabled={!selectedVariant || selectedVariant.stock <= 0}>
+                                    {selectedVariant && selectedVariant.stock <= 0 ? "Fora de Estoque" : "Adicionar ao Carrinho"}
+                                </button>
+                                <button className={styles.btnFavorite} aria-label="Adicionar aos favoritos"><FaHeart /></button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            {/* Produto INATIVO - Mostra "Avise-me" */}
+                            <div className={styles.inactiveProductBox}>
+                                <FaExclamationCircle />
+                                <strong>Produto Indisponível</strong>
+                                <p>Este produto não está mais disponível para compra no momento.</p>
+                                <button className={styles.notifyButton} onClick={handleNotifyMe}>
+                                    <FaBell /> Avise-me quando chegar
+                                </button>
+                            </div>
+                        </>
+                    )}
+                    {/* Fim da lógica Ativo/Inativo */}
+
+                    {/* Calculadora de Frete (só mostra se estiver ativo) */}
+                    {isActive && (
+                        <div className={styles.shippingCalculator}>
+                            <label htmlFor="cep"><FaShippingFast /> Calcular frete e prazo</label>
+                            <div className={styles.shippingForm}>
+                                <input id="cep" type="text" placeholder="Digite seu CEP" maxLength={9} value={cep} onChange={(e) => { const formattedCep = e.target.value.replace(/\D/g, '').replace(/^(\d{5})(\d)/, '$1-$2'); setCep(formattedCep); setShippingError(null); setShippingInfo(null); }} />
+                                <button onClick={handleCalculateShipping} disabled={shippingLoading}>
+                                    {shippingLoading ? <FaSpinner className={styles.spinner} /> : 'Calcular'}
+                                </button>
+                            </div>
+                            {shippingError && <p className={styles.shippingError}>{shippingError}</p>}
+                            {shippingInfo && (
+                                <div className={styles.shippingResult}>
+                                    <p>Entrega para {shippingInfo.city}, {shippingInfo.state}:</p>
+                                    <p><strong>Valor: {formatCurrency(shippingInfo.cost)}</strong> (até {shippingInfo.days} dias úteis)</p>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div> {/* Fim InfoColumn */}
             </div> {/* Fim PageLayout */}
 
@@ -277,6 +313,7 @@ const RelatedProducts = ({ category, currentProductId }) => {
         try {
             const q = query(
                 collection(db, 'products'),
+                where('isActive', '==', true), // <-- Só mostra relacionados ATIVOS
                 where('categoria', '==', category),
                 where('__name__', '!=', currentProductId),
                 limit(10)

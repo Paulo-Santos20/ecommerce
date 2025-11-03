@@ -607,3 +607,47 @@
     width: auto; /* Largura automática no desktop */
   }
 }
+
+.inactiveProductBox {
+  margin: 2rem 0;
+  padding: 2rem;
+  border: 2px dashed var(--color-border);
+  border-radius: 8px;
+  background-color: var(--color-background);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.inactiveProductBox svg {
+  font-size: 2.5rem;
+  color: var(--color-primary);
+  opacity: 0.8;
+}
+.inactiveProductBox strong {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+.inactiveProductBox p {
+  font-size: 1.5rem;
+  color: #555;
+  max-width: 400px;
+}
+.notifyButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 1.2rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  transition: opacity 0.2s;
+}
+.notifyButton:hover {
+  opacity: 0.9;
+}

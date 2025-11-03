@@ -1,0 +1,191 @@
+.ordersPage {
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1.5rem;
+  border-radius: 5px;
+  font-size: 1.5rem;
+}
+
+/* --- Barra de Filtros --- */
+.filterBar {
+  display: flex;
+  flex-wrap: wrap; /* Quebra linha no mobile */
+  gap: 1.5rem;
+  background-color: var(--color-highlight);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
+}
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px; /* Largura mínima para cada filtro */
+}
+.filterGroup label {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #555;
+}
+.filterGroup input,
+.filterGroup select {
+  font-size: 1.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.searchWrapper input {
+  width: 100%;
+  padding-right: 3rem; /* Espaço para o ícone */
+}
+.searchWrapper svg {
+  position: absolute;
+  right: 12px;
+  color: #888;
+}
+
+/* --- Tabela Responsiva --- */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto; /* Permite scroll horizontal na tabela */
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.ordersTable th,
+.ordersTable td {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+.ordersTable th {
+  font-size: 1.4rem;
+  font-weight: 600;
+  background-color: #f9f9f9;
+}
+.ordersTable tbody tr:last-child td {
+  border-bottom: none;
+}
+.ordersTable tbody tr:hover {
+  background-color: var(--color-background);
+}
+
+.ordersTable td {
+  font-size: 1.4rem;
+}
+.ordersTable td small {
+  display: block;
+  font-size: 1.2rem;
+  color: #555;
+}
+.emptyRow {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.6rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Select de Mudar Status */
+.statusSelect {
+  font-size: 1.4rem;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+}
+
+/* Botão de Ação */
+.actionButton {
+  background-color: var(--color-text-dark);
+  color: var(--color-highlight);
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 5px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+/* Badges de Status (Copiado de MyOrders) */
+.statusBadge {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  border-radius: 15px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+.statusDefault { background-color: #e0e0e0; color: #333; }
+.statusProcessing { background-color: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+.statusShipped { background-color: #e3f2fd; color: #0d47a1; border: 1px solid #bbdefb; }
+.statusDelivered { background-color: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+.statusCancelled { background-color: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
+
+/* --- Responsividade da Tabela (Mobile) --- */
+@media (max-width: 900px) {
+  .ordersTable thead {
+    display: none; /* Esconde o cabeçalho */
+  }
+  .ordersTable tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .ordersTable td {
+    display: block;
+    text-align: right; /* Alinha o valor à direita */
+    padding-left: 50%; /* Espaço para o label */
+    position: relative;
+    border-bottom: 1px solid var(--color-background);
+  }
+  .ordersTable td:last-child {
+    border-bottom: none;
+  }
+  .ordersTable td::before {
+    /* Adiciona o "label" (ex: "Cliente:") */
+    content: attr(data-label);
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--color-text-dark);
+    text-align: left;
+  }
+}

@@ -34,6 +34,7 @@ const AdminCategories = lazy(() => import('../pages/Admin/AdminCategories'));
 const AdminUsers = lazy(() => import('../pages/Admin/AdminUsers'));
 const AdminSettings = lazy(() => import('../pages/Admin/AdminSettings'));
 const AdminReports = lazy(() => import('../pages/Admin/AdminReports'));
+const AdminOrderDetails = lazy(() => import('../pages/Admin/AdminOrderDetails'));
 
 const AppRoutes = () => {
   return (
@@ -69,6 +70,8 @@ const AppRoutes = () => {
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="pedidos" element={<AdminOrders />} />
+            <Route path="produtos" element={<AdminProducts />} />
+            <Route path="pedidos/:id" element={<AdminOrderDetails />} />
             <Route path="produtos" element={<AdminProducts />} />
             <Route path="categorias" element={<AdminCategories />} />
             <Route path="usuarios" element={<AdminUsers />} />

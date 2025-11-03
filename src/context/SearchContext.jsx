@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase/config';
-import { collection, getDocs, query } from 'firebase/firestore';
+// Adiciona 'where'
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 const SearchContext = createContext();
 
@@ -15,34 +16,37 @@ export const SearchProvider = ({ children }) => {
   useEffect(() => {
     const fetchSearchIndex = async () => {
       try {
-        // 1. Busca Categorias
+        // 1. Busca Categorias (inalterado)
         const categoriesRef = collection(db, 'categories');
         const categoriesSnap = await getDocs(categoriesRef);
         const categoriesData = categoriesSnap.docs.map(doc => ({
           id: doc.id,
           name: doc.data().nome,
           type: 'categoria',
-          // --- ADICIONADO: Imagem placeholder para categoria ---
           image: `https://via.placeholder.com/50/800000/FFFFFF?text=${doc.data().nome.charAt(0)}` 
         }));
 
         // 2. Busca Produtos
         const productsRef = collection(db, 'products');
-        const productsQuery = query(productsRef); // Busca o documento completo
+        
+        // --- CORREÇÃO APLICADA AQUI ---
+        // Agora só busca produtos que estão marcados como ATIVOS
+        const productsQuery = query(productsRef, where('isActive', '==', true));
+        // --------------------------------
+        
         const productsSnap = await getDocs(productsQuery);
         
         const productsData = productsSnap.docs.map(doc => {
           const data = doc.data();
-          // --- CORREÇÃO: Pega a imagem principal do produto ---
           const imageUrl = (data.images && data.images.length > 0)
             ? data.images[data.mainImageIndex || 0]
-            : 'https://via.placeholder.com/50'; // Fallback
+            : 'https://via.placeholder.com/50';
             
           return {
             id: doc.id,
             name: data.nome,
             type: 'produto',
-            image: imageUrl // <-- Passa a imagem para o índice
+            image: imageUrl
           };
         });
         
@@ -50,6 +54,8 @@ export const SearchProvider = ({ children }) => {
         
       } catch (error) {
         console.error("Erro ao construir índice de busca:", error);
+        // NOTA: Se isso falhar por 'failed-precondition', você precisa
+        // criar o índice 'isActive' no Firestore.
       } finally {
         setIsLoading(false);
       }

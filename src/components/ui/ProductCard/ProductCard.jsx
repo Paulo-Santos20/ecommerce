@@ -1,47 +1,37 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useCartStore } from '../../../store/useCartStore'; // Verifique o caminho
+import { Link, useNavigate } from 'react-router-dom'; // 1. Importa useNavigate
+import { useCartStore } from '../../../store/useCartStore'; 
 import { FaShoppingCart } from 'react-icons/fa'; 
-import { toast } from 'react-toastify'; // Importa o toast
-import CountdownTimer from '../CountdownTimer/CountdownTimer'; // Verifique o caminho
+import { toast } from 'react-toastify'; 
+import CountdownTimer from '../CountdownTimer/CountdownTimer';
 import styles from './ProductCard.module.css';
 
 const formatCurrency = (value) => {
-  if (typeof value !== 'number' || isNaN(value)) {
-    return 'R$ --,--';
-  }
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
+  if (typeof value !== 'number' || isNaN(value)) { return 'R$ --,--'; }
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 };
 
 const isSaleActive = (product) => {
   if (!product?.onSale) return false;
-  if (product.onSale && !product.offerEndDate) return true; // Promo permanente
-  // Garante que é um Timestamp antes de chamar toDate()
-  return product.offerEndDate && typeof product.offerEndDate.toDate === 'function'
-         ? product.offerEndDate.toDate() > new Date()
-         : false;
+  if (product.onSale && !product.offerEndDate) return true; 
+  return product.offerEndDate?.toDate() > new Date(); 
 };
 
 const getCheapestVariant = (variants) => {
-  if (!variants || variants.length === 0) {
-    return null;
-  }
-  return variants.reduce(
-    (min, v) => (v.price < min.price ? v : min),
-    variants[0]
-  );
+  if (!variants || variants.length === 0) { return null; }
+  return variants.reduce((min, v) => (v.price < min.price ? v : min), variants[0]);
 };
 
 /**
  * Card de Produto (Atualizado)
- * - Usa toast() para feedback ao adicionar ao carrinho.
+ * - Desabilita a compra de produtos inativos.
  */
 const ProductCard = ({ product }) => {
-  const { id, nome, images, mainImageIndex, variants, offerEndDate } = product;
+  // 2. Pega 'isActive'. Se for 'undefined', assume 'true' (legado).
+  const { id, nome, images, mainImageIndex, variants, offerEndDate, isActive = true } = product;
+  
   const addItemToCart = useCartStore((state) => state.addItem);
+  const navigate = useNavigate(); // Hook para navegação
 
   const saleIsActive = isSaleActive(product);
   const showCountdown = saleIsActive && offerEndDate != null;
@@ -61,21 +51,23 @@ const ProductCard = ({ product }) => {
     e.preventDefault(); 
     e.stopPropagation(); 
 
+    // 3. --- CORREÇÃO DE LÓGICA ---
+    // Não faz nada se estiver inativo
+    if (!isActive) { 
+        toast.info("Este produto não está disponível. Veja mais detalhes.");
+        navigate(`/produto/${id}`);
+        return;
+    }
+    // ----------------------------
+
     if (cheapestVariant && cheapestVariant.stock > 0) {
       const cartItemId = `${id}-${cheapestVariant.color}-${cheapestVariant.size}`;
       const itemToAdd = {
-        id: cartItemId,
-        productId: id,
-        nome: nome,
-        imagem: imageUrl, 
-        price: cheapestVariant.price,
-        color: cheapestVariant.color,
-        size: cheapestVariant.size,
+        id: cartItemId, productId: id, nome: nome, imagem: imageUrl, 
+        price: cheapestVariant.price, color: cheapestVariant.color, size: cheapestVariant.size,
         quantity: 1
       };
       addItemToCart(itemToAdd, 1);
-      
-      // --- USA TOAST ---
       toast.success(`${nome} adicionado ao carrinho!`); 
     } else {
       toast.error("Produto ou variante indisponível no momento.");
@@ -83,7 +75,15 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <Link to={`/produto/${id}`} className={styles.card}>
+    // 4. Adiciona classe de CSS se estiver inativo
+    <Link to={`/produto/${id}`} className={`${styles.card} ${!isActive ? styles.inactiveCard : ''}`}>
+      
+      {/* 5. Mostra um overlay "Indisponível" */}
+      {!isActive && (
+        <div className={styles.inactiveOverlay}>
+          <span>Indisponível</span>
+        </div>
+      )}
       
       <div className={styles.tagWrapper}>
         {saleIsActive && ( <div className={styles.saleTag}>PROMOÇÃO</div> )}
@@ -111,14 +111,21 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      <button 
-        className={styles.addToCartBtn} 
-        onClick={handleAddToCart}
-        disabled={!cheapestVariant || cheapestVariant.stock === 0} 
-        aria-label={`Adicionar ${nome} ao carrinho`}
-      >
-        <FaShoppingCart />
-      </button>
+      {/* 6. Só mostra o botão de carrinho se estiver ATIVO */}
+      {isActive ? (
+          <button 
+            className={styles.addToCartBtn} 
+            onClick={handleAddToCart}
+            disabled={!cheapestVariant || cheapestVariant.stock === 0} 
+            aria-label={`Adicionar ${nome} ao carrinho`}
+          >
+            <FaShoppingCart />
+          </button>
+      ) : (
+          <div className={styles.viewProductBtn}>
+            Ver Detalhes
+          </div>
+      )}
     </Link>
   );
 };

@@ -9,7 +9,8 @@
   color: var(--color-text-light);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Impede que encolha */
+  justify-content: space-between; /* <-- Empurra o footer para baixo */
+  flex-shrink: 0; 
   position: sticky;
   top: 0;
   height: 100vh;
@@ -34,7 +35,6 @@
 .sidebarNav {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
   padding-top: 1rem;
 }
 .sidebarNav a {
@@ -63,12 +63,42 @@
   width: 20px;
 }
 
+/* --- REQUISITO: Estilos do Botão "Voltar ao Site" --- */
+.sidebarFooter {
+  padding: 1.5rem;
+  border-top: 1px solid #444;
+}
+.backToSiteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  width: 100%;
+  border-radius: 5px;
+  background-color: #f0f0f0;
+  color: var(--color-text-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.backToSiteButton:hover {
+  background-color: #e0e0e0;
+  color: var(--color-primary);
+}
+.backToSiteButton svg {
+  font-size: 1.4rem;
+}
+/* --- FIM DOS NOVOS ESTILOS --- */
+
+
 /* Área de Conteúdo */
 .adminContent {
   flex-grow: 1;
   background-color: var(--color-background); /* Fundo cinza claro */
   padding: 2rem 3rem;
-  overflow-y: auto; /* Permite scroll no conteúdo */
+  overflow-y: auto; 
 }
 
 /* Responsividade (Mobile) */
@@ -80,22 +110,29 @@
     width: 100%;
     height: auto;
     position: static;
+    justify-content: flex-start; /* Alinha normal no mobile */
   }
   .sidebarNav {
     flex-direction: row;
-    overflow-x: auto; /* Scroll horizontal no menu mobile */
+    overflow-x: auto; 
+    padding-top: 0;
   }
   .sidebarNav a {
     justify-content: center;
     border-left: none;
     border-bottom: 4px solid transparent;
     padding: 1.5rem 1rem;
+    flex-grow: 1; /* Faz os botões ocuparem espaço */
   }
   .sidebarNav a.activeLink {
      border-bottom-color: var(--color-primary);
+     border-left-color: transparent; /* Remove borda lateral */
   }
   .sidebarNav a span {
     display: none; /* Esconde o texto, mostra só o ícone */
+  }
+  .sidebarFooter {
+      display: none; /* Esconde o botão "Voltar" no mobile (assume-se que o Header principal estará visível ao rolar) */
   }
   .adminContent {
     padding: 1.5rem;

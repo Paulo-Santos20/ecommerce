@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-// Importa o Timestamp do Firebase
-import { db } from '../../../firebase/config';
-import { collection, addDoc, doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore'; 
+import { db, auth } from '../../../firebase/config'; // Importa auth
+import { collection, addDoc, doc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { FaTrash, FaPlus, FaStar } from 'react-icons/fa';
+import { toast } from 'react-toastify';
 import styles from './ProductForm.module.css';
 
-// --- Esquema de Validação Atualizado ---
+// --- Esquemas de Validação ---
 const variantSchema = z.object({
   color: z.string().min(1, "Cor obrigatória"),
   size: z.string().min(1, "Tamanho obrigatório"),
@@ -31,20 +31,23 @@ const productSchema = z.object({
   descricao: z.string().min(10, "Descrição deve ter pelo menos 10 caracteres."),
   categoria: z.string().min(1, "Selecione uma categoria."),
   onSale: z.boolean(),
-  offerEndDate: z.string().optional().nullable(), // Aceita string, opcional ou nulo
+  offerEndDate: z.string().optional().nullable(),
   images: z.array(z.string().url("Insira uma URL válida.")).min(1, "Adicione pelo menos uma imagem."),
   mainImageIndex: z.number().min(0, "Selecione uma imagem principal."),
   variants: z.array(variantSchema).min(1, "Adicione pelo menos uma variante."),
+  isActive: z.boolean(), // Inclui o status
 });
 
-// Helper para converter Timestamp do Firebase para string 'YYYY-MM-DD'
+// Helper para formatar Timestamp do Firebase para string 'YYYY-MM-DD'
 const formatTimestampToInputDate = (timestamp) => {
   if (!timestamp) return '';
-  // Converte o Timestamp do Firebase (segundos, nanossegundos) para um JS Date
   const date = timestamp.toDate(); 
   return date.toISOString().split('T')[0]; // Formata para YYYY-MM-DD
 };
 
+/**
+ * Formulário de Produto Completo e Corrigido
+ */
 const ProductForm = ({ productToEdit, categories, onFormClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
@@ -58,15 +61,15 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
       descricao: productToEdit?.descricao || '',
       categoria: productToEdit?.categoria || '',
       onSale: productToEdit?.onSale || false,
-      // Converte o Timestamp de volta para o formato do input
       offerEndDate: formatTimestampToInputDate(productToEdit?.offerEndDate),
       images: productToEdit?.images || [],
       mainImageIndex: productToEdit?.mainImageIndex || 0,
       variants: productToEdit?.variants || [{ color: '', size: '', price: 0, oldPrice: 0, stock: 0 }],
+      isActive: productToEdit?.isActive === undefined ? true : productToEdit.isActive, // Padrão 'true'
     },
   });
 
-  const isOnSale = watch("onSale"); // "Assiste" o checkbox
+  const isOnSale = watch("onSale");
 
   const { fields: imageFields, append: appendImage, remove: removeImage } = useFieldArray({
     control, name: "images",
@@ -78,18 +81,16 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
   const [manualUrl, setManualUrl] = useState("");
   const mainImageIndex = watch("mainImageIndex");
 
+  // Limpa campos de promoção se 'onSale' for desmarcado
   useEffect(() => {
     if (!isOnSale) {
-      setValue("offerEndDate", ''); // Limpa a data se a promoção for desmarcada
+      setValue("offerEndDate", '');
       variantFields.forEach((_, index) => {
         setValue(`variants.${index}.oldPrice`, 0);
       });
     }
   }, [isOnSale, setValue, variantFields]);
 
-  // --- CORREÇÃO AQUI ---
-  // Removi as declarações duplicadas que causei no último passo.
-  
   const addImageUrl = () => {
     if (manualUrl.startsWith("http")) {
       appendImage(manualUrl);
@@ -100,7 +101,6 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
   const setAsMainImage = (index) => {
     setValue("mainImageIndex", index);
   };
-  // --- FIM DA CORREÇÃO ---
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -108,10 +108,16 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
     
     let finalData = { ...data };
 
-    if (finalData.onSale) {
-      // ... (lógica da data de oferta inalterada)
+    if (finalData.onSale && finalData.offerEndDate) {
+      const endDate = new Date(finalData.offerEndDate + 'T23:59:59');
+      finalData.offerEndDate = Timestamp.fromDate(endDate);
     } else {
-      // ... (lógica de 'else' inalterada)
+      finalData.offerEndDate = null; 
+    }
+    
+    // Se não for promoção, zera o 'oldPrice'
+    if (!finalData.onSale) {
+       finalData.variants = finalData.variants.map(v => ({ ...v, oldPrice: 0 }));
     }
 
     try {
@@ -119,21 +125,21 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
         const productRef = doc(db, 'products', productToEdit.id);
         await updateDoc(productRef, finalData);
       } else {
-        // --- ATUALIZAÇÃO APLICADA AQUI ---
         await addDoc(collection(db, 'products'), {
           ...finalData,
           createdAt: serverTimestamp(),
-          salesCount: 0 // <-- Adiciona o contador inicial
+          salesCount: 0 // Inicia contador de vendas
         });
-        // --- FIM DA ATUALIZAÇÃO ---
       }
       
+      toast.success(isEditing ? "Produto atualizado!" : "Produto criado com sucesso!");
       reset();
-      onFormClose();
+      onFormClose(true); // Passa 'true' para indicar que salvou
       
     } catch (error) {
       console.error("Erro ao salvar produto: ", error);
       setFormError(error.message || "Erro ao salvar o produto.");
+      toast.error("Erro ao salvar. Verifique o console.");
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +185,6 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
           </div>
         </div>
         
-        {/* Campo de Data Condicional (agora opcional) */}
         {isOnSale && (
           <div className={styles.formGroup} style={{flex: 1}}>
             <label htmlFor="offerEndDate">Data de Término (Opcional)</label>
@@ -189,7 +194,7 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
         )}
       </div>
 
-      {/* --- GERENCIADOR DE IMAGENS (URL) --- */}
+      {/* Gerenciador de Imagens (URL) */}
       <div className={styles.formGroup}>
          <label>Imagens (URLs) e Imagem Principal</label>
         <div className={styles.urlInputGroup}>
@@ -202,7 +207,7 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
           {imageFields.map((field, index) => (
             <div key={field.id} className={`${styles.imagePreview} ${mainImageIndex === index ? styles.mainImage : ''}`}>
               <img src={field.value} alt={`Preview ${index}`} />
-              <button typeD="button" className={styles.btnRemoveImage} onClick={() => removeImage(index)}><FaTrash /></button>
+              <button type="button" className={styles.btnRemoveImage} onClick={() => removeImage(index)}><FaTrash /></button>
               <button type="button" className={styles.btnSetMain} onClick={() => setAsMainImage(index)}>
                 <FaStar /> {mainImageIndex === index ? 'Principal' : 'Definir'}
               </button>
@@ -212,7 +217,7 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
         {errors.mainImageIndex && <span className={styles.error}>{errors.mainImageIndex.message}</span>}
       </div>
 
-      {/* --- GERENCIADOR DE VARIANTES (UI DINÂMICA) --- */}
+      {/* Gerenciador de Variantes */}
       <div className={styles.formGroup}>
         <label>Variantes (Cor, Tamanho, Preço, Estoque)</label>
         <div className={`${styles.variantHeader} ${isOnSale ? styles.saleActive : ''}`}>
@@ -241,19 +246,24 @@ const ProductForm = ({ productToEdit, categories, onFormClose }) => {
             )}
             
             <input {...register(`variants.${index}.stock`)} type="number" placeholder="Estoque" />
-            <button type="button" onClick={() => removeVariant(index)} className={styles.btnRemoveVariant}><FaTrash /></button>
+            
+            {/* --- CORREÇÃO APLICADA AQUI --- */}
+            <button type="button" onClick={() => removeVariant(index)} className={styles.btnRemoveVariant}>
+              <FaTrash />
+            </button>
+            {/* ------------------------------- */}
           </div>
         ))}
         {errors.variants && <span className={styles.error}>{errors.variants.message || errors.variants.root?.message}</span>}
-        <button typeM="button" onClick={() => appendVariant({ color: '', size: '', price: 0, oldPrice: 0, stock: 0 })} className={styles.btnAddVariant}>
+        <button type="button" onClick={() => appendVariant({ color: '', size: '', price: 0, oldPrice: 0, stock: 0 })} className={styles.btnAddVariant}>
           <FaPlus /> Adicionar Variante (SKU)
         </button>
       </div>
       
       {formError && <span className={styles.error}>{formError}</span>}
       <div className={styles.actions}>
-        <button type="button" onClick={onFormClose} className={styles.btnCancel} disabled={isSubmitting}>Cancelar</button>
-        <button type="submit" className={styles.btnSubmit} disabled={isSubmitting}>
+        <button type="button" onClick={() => onFormClose(false)} className={styles.btnCancel}>Cancelar</button>
+        <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
           {isSubmitting ? 'Salvando...' : 'Salvar Produto'}
         </button>
       </div>

@@ -8,6 +8,7 @@ import ProductCarousel from '../../components/ui/ProductCarousel/ProductCarousel
 import FeaturedProductGrid from '../../components/ui/FeaturedProductGrid/FeaturedProductGrid';
 import styles from './Home.module.css';
 import Loading from '../../components/ui/Loading/Loading';
+import { toast } from 'react-toastify'; // Importa o toast
 
 const Home = () => {
   const [loading, setLoading] = useState(true);
@@ -22,31 +23,51 @@ const Home = () => {
           const querySnapshot = await getDocs(q);
           return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         };
-        const bestSellersQuery = query(collection(db, 'products'), orderBy('salesCount', 'desc'), limit(8));
-        const saleProductsQuery = query(collection(db, 'products'), where('onSale', '==', true), limit(8));
-        const recommendedQuery = query(collection(db, 'products'), limit(20));
+
+        // --- CORREÇÃO: Adiciona where('isActive', '==', true) ---
+        const baseQuery = [where('isActive', '==', true)];
+
+        // Query 1: Mais Vendidos (ativos, ordenados por vendas)
+        const bestSellersQuery = query(
+          collection(db, 'products'), 
+          ...baseQuery, 
+          orderBy('salesCount', 'desc'), 
+          limit(8)
+        );
+
+        // Query 2: Em Promoção (ativos, em promoção)
+        const saleProductsQuery = query(
+          collection(db, 'products'), 
+          ...baseQuery, 
+          where('onSale', '==', true), 
+          limit(8)
+        );
+
+        // Query 3: Recomendados (ativos, limite de 20)
+        const recommendedQuery = query(
+          collection(db, 'products'), 
+          ...baseQuery, 
+          limit(20)
+        );
+        // -------------------------------------------------------------
         
         const [bestSellersData, saleProductsData, recommendedData] = await Promise.all([
           fetchCollection(bestSellersQuery),
           fetchCollection(saleProductsQuery),
           fetchCollection(recommendedQuery),
         ]);
+
         setBestSellers(bestSellersData);
         setSaleProducts(saleProductsData);
         setRecommended(recommendedData);
+
       } catch (error) {
         console.error("Erro ao buscar produtos da Home: ", error);
-        // Tenta carregar sem os filtros de 'salesCount' ou 'onSale' se der erro de índice
         if (error.code === 'failed-precondition') {
-            try {
-                const fallbackQuery = query(collection(db, 'products'), limit(10));
-                const fallbackData = await fetchCollection(fallbackQuery);
-                setBestSellers(fallbackData);
-                setSaleProducts(fallbackData);
-                setRecommended(fallbackData);
-            } catch (fallbackError) {
-                console.error("Erro no fallback da Home: ", fallbackError);
-            }
+          // Erro de Índice
+          toast.error("Erro de índice no Firestore. Verifique o console (F12) para criar os índices.");
+        } else {
+          toast.error("Não foi possível carregar os produtos.");
         }
       } finally {
         setLoading(false);
@@ -59,10 +80,12 @@ const Home = () => {
     <div className={styles.homePage}>
       <HeroCarousel />
       <section className={`${styles.homeSection} ${styles.categorySection} container`}>
+        <h2 className={styles.sectionTitle}>Navegue por Categorias</h2>
         <CategoryBubbles />
       </section>
       <section className={`${styles.homeSection} ${styles.promoSection}`}>
         <div className="container">
+          <h2 className={styles.sectionTitle}>Conheça Nossas Ofertas</h2>
           <PromoBanners />
         </div>
       </section>
