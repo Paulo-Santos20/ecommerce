@@ -1,0 +1,204 @@
+.dashboardPage {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+}
+
+.error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1.5rem;
+  border-radius: 5px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+
+/* --- Grid de Estatísticas (KPIs) --- */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.statCard {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.cardIcon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+}
+.cardInfo span {
+  font-size: 1.4rem;
+  color: #555;
+  font-weight: 500;
+}
+.cardInfo strong {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  line-height: 1.2;
+}
+
+/* --- Grid das Listas (Ações Rápidas) --- */
+.listsGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 2rem;
+}
+
+.listCard {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  overflow: hidden; /* Garante cantos arredondados */
+}
+
+.listTitle {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.listTitle svg {
+  color: var(--color-primary);
+  font-size: 1.6rem;
+}
+
+.listContent {
+  padding: 0.5rem 1.5rem 1.5rem 1.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.emptyList {
+  font-size: 1.5rem;
+  color: #555;
+  text-align: center;
+  padding: 2rem 0;
+  font-style: italic;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0.5rem;
+  border-bottom: 1px solid var(--color-background);
+}
+.listItem:last-child {
+  border-bottom: none;
+}
+
+.itemImage {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+}
+.itemInfo {
+  flex-grow: 1;
+}
+.itemInfo strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+  display: block;
+}
+.itemInfo small {
+  font-size: 1.3rem;
+  color: #555;
+}
+
+.actionButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 5px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.actionButton:hover {
+  opacity: 0.9;
+}
+
+/* --- Responsividade --- */
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas tablet */
+  }
+  .listsGrid {
+    grid-template-columns: repeat(2, 1fr); /* 2 colunas tablet */
+  }
+}
+@media (min-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr); /* 4 colunas desktop */
+  }
+}
+
+.chartContainer {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  margin-bottom: 2.5rem;
+  /* Altura fixa para o gráfico */
+  height: 350px; 
+}
+
+/* --- Atualização no Grid de Listas --- */
+@media (min-width: 992px) {
+  /* Agora com 3 colunas (Pedidos, Mais Vendidos, Estoque Baixo) */
+  .listsGrid {
+    grid-template-columns: repeat(3, 1fr); 
+  }
+}
+@media (max-width: 991px) and (min-width: 768px) {
+  /* Mantém 2 colunas no tablet */
+  .listsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr); 
+  }
+}
