@@ -2,9 +2,8 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getFunctions } from 'firebase/functions';
 
-// As variáveis de ambiente devem ser criadas em um arquivo .env.local
-// Lembre-se de prefixá-las com VITE_ (ex: VITE_FIREBASE_API_KEY)
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -17,8 +16,9 @@ const firebaseConfig = {
 // Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
 
-// Exporta os serviços para uso na aplicação (Arquitetura Escalável)
+// Exporta os serviços (Client-side)
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
+export const functions = getFunctions(app, 'southamerica-east1'); 

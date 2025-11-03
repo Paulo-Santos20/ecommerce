@@ -1,79 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-// Importando o Swiper (Core e Módulos)
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay, Pagination } from 'swiper/modules';
-
-// Importando os estilos CSS do Swiper
+import { useSettings } from '../../../context/SettingsContext'; // 1. Importar
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-
-// Importando nossos estilos CSS Modules
 import styles from './HeroCarousel.module.css';
-
-// --- ATUALIZADO: Usando 'picsum.photos' (Rápido e Estável) ---
-// Usamos 'seed' para obter uma imagem consistente para cada slide
-const bannerImages = [
-  {
-    id: 1,
-    imgUrlMobile: 'https://picsum.photos/seed/promo1/800/600',
-    imgUrlDesktop: 'https://picsum.photos/seed/promo1-desk/1600/400',
-    alt: 'Banner da Promoção 1',
-    link: '/loja?categoria=ofertas',
-  },
-  {
-    id: 2,
-    imgUrlMobile: 'https://picsum.photos/seed/novo-estilo/800/600',
-    imgUrlDesktop: 'https://picsum.photos/seed/novo-estilo-desk/1600/400',
-    alt: 'Banner da Promoção 2',
-    link: '/loja?categoria=novidades',
-  },
-  {
-    id: 3,
-    imgUrlMobile: 'https://picsum.photos/seed/moda-feminina/800/600',
-    imgUrlDesktop: 'https://picsum.photos/seed/moda-feminina-desk/1600/400',
-    alt: 'Banner da Promoção 3',
-    link: '/loja?categoria=feminino',
-  },
-];
 
 /**
  * Componente de Carrossel de Banners (Hero).
- * - Usa Swiper.js para funcionalidade robusta.
- * - Inclui Autoplay, Navegação (setas) e Paginação (dots).
- * - "Infinito" (loop = true).
- * - Carrega imagens diferentes para Mobile e Desktop (Performance Total).
+ * ATUALIZADO: Agora busca as imagens do SettingsContext.
  */
 const HeroCarousel = () => {
+  // 2. Puxa os slides do Contexto
+  const { settings } = useSettings();
+  const bannerImages = settings.heroSlider || []; // Pega os slides ou um array vazio
+
+  if (bannerImages.length === 0) {
+    return null; // Não renderiza nada se não houver slides
+  }
+
   return (
     <section className={styles.carouselSection}>
       <Swiper
-        // Módulos que vamos usar
         modules={[Navigation, Autoplay, Pagination]}
-        
-        // --- Requisitos ---
-        loop={true}           // Banner infinito
+        loop={true}
         autoplay={{
-          delay: 4000,        // Gira automaticamente a cada 4 segundos
-          disableOnInteraction: false, // Não para o autoplay ao clicar
+          delay: 4000,
+          disableOnInteraction: false,
         }}
-        navigation={true}     // Setas de navegação
-        
-        // --- UI/UX Adicional ---
-        pagination={{ clickable: true }} // Bolinhas de navegação
-        
-        // Classe principal para customização
+        navigation={true}
+        pagination={{ clickable: true }}
         className={styles.heroSwiper}
       >
-        {bannerImages.map((banner) => (
-          <SwiperSlide key={banner.id}>
-            <Link to={banner.link} className={styles.slideLink}>
-              {/* Técnica de Design Responsivo:
-                Usamos <picture> para carregar a imagem correta 
-                para o dispositivo do usuário (Mobile-First).
-              */}
+        {bannerImages.map((banner, index) => (
+          // Usa 'index' como key caso o ID não seja único
+          <SwiperSlide key={banner.id || index}> 
+            <Link to={banner.link || '#'} className={styles.slideLink}>
               <picture>
                 <source 
                   media="(min-width: 769px)" 

@@ -8,7 +8,7 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 
 import { useAuthStore } from '../../store/useAuthStore';
 import Loading from '../../components/ui/Loading/Loading';
 import { toast } from 'react-toastify';
-import styles from './ChangePasswordPage.module.css'; // Novo CSS
+import styles from './ChangePasswordPage.module.css';
 
 // --- Esquema de Validação (Zod) ---
 const passwordSchema = z.object({
@@ -85,9 +85,7 @@ const ChangePasswordPage = () => {
     if (!isAuthReady) {
         return <Loading />;
     }
-    // O usuário é verificado no useEffect, então não precisamos de um loading aqui
-    // se !user, ele será redirecionado.
-
+    
     return (
         <div className={`container ${styles.pageWrapper}`}>
             <h1 className={styles.title}>Alterar Senha de Acesso</h1>
@@ -134,7 +132,9 @@ const ChangePasswordPage = () => {
                     {authError && <span className={styles.authError}>{authError}</span>}
 
                     <div className={styles.actions}>
-                        <button typeT="submit" className={styles.submitButton} disabled={isSubmitting}>
+                        {/* --- CORREÇÃO APLICADA AQUI --- */}
+                        <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
+                        {/* ------------------------------- */}
                             {isSubmitting ? "Salvando..." : "Alterar Senha"}
                         </button>
                     </div>

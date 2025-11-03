@@ -4,15 +4,15 @@ import {
   FaBars, FaTimes, FaShoppingCart, FaUser, FaSearch, FaAngleLeft, FaTrash, 
   FaBoxOpen, FaEye, FaBell, FaCommentDots, FaIdCard, FaMobileAlt, FaMapMarkedAlt, 
   FaCreditCard, FaLock, FaShieldAlt, FaSignOutAlt, 
-  FaCogs, // Ícone para o "Painel de Controle"
-  FaStore, // Ícone para categoria
-  FaTshirt // Ícone para produto
+  FaCogs, FaStore, FaTshirt,
+  FaFileAlt // Importa o ícone de Página
 } from 'react-icons/fa';
 import { useCartStore } from '../../../store/useCartStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { auth } from '../../../firebase/config';
 import { signOut } from 'firebase/auth';
 import { useSearch } from '../../../context/SearchContext'; 
+import { useSettings } from '../../../context/SettingsContext'; // Importa o Contexto de Configurações
 import useDebounce from '../../../hooks/useDebounce'; 
 import styles from './Header.module.css';
 
@@ -20,6 +20,7 @@ const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', { style: 'curre
 
 /**
  * Header redesenhado com 3 camadas + Mini Carrinho + Dropdown de Usuário + Busca com Sugestões.
+ * ATUALIZADO: Lê dados do SettingsContext (logo, promo bar, e páginas dinâmicas).
  */
 const Header = () => {
   // Estados dos menus
@@ -34,29 +35,24 @@ const Header = () => {
   const searchRef = useRef(null); 
   const navigate = useNavigate();
 
-  // --- CORREÇÃO DO LOOP INFINITO (Zustand) ---
-  // Selecionamos cada "fatia" do estado separadamente.
+  // --- Stores e Contextos (Seletores Individuais) ---
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const user = useAuthStore((state) => state.user);
-  // --- FIM DA CORREÇÃO ---
+  const { settings } = useSettings(); // Puxa as configurações (que incluem as páginas)
+  const { getSuggestions } = useSearch(); 
   
   // --- Lógica de Busca com Sugestões ---
   const [searchTerm, setSearchTerm] = useState('');
   const [mobileSearchTerm, setMobileSearchTerm] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [isSearchActive, setIsSearchActive] = useState(false); 
-  
-  const { getSuggestions } = useSearch(); // Pega a função do Contexto
-  
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const debouncedMobileSearchTerm = useDebounce(mobileSearchTerm, 300);
 
-  // Efeito que busca sugestões QUANDO o termo "atrasado" muda
   useEffect(() => {
     const term = isSearchOpen ? debouncedMobileSearchTerm : debouncedSearchTerm;
-    
     if (term.length > 1 && (isSearchActive || isSearchOpen)) {
       const newSuggestions = getSuggestions(term);
       setSuggestions(newSuggestions);
@@ -65,7 +61,7 @@ const Header = () => {
     }
   }, [debouncedSearchTerm, debouncedMobileSearchTerm, getSuggestions, isSearchActive, isSearchOpen]);
 
-  // Calcula totais (agora seguro)
+  // Calcula totais
   const totalItems = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
@@ -107,11 +103,7 @@ const Header = () => {
   const handleLogout = (e) => {
     e.preventDefault(); 
     closeAll(); 
-    signOut(auth).then(() => {
-      navigate('/'); 
-    }).catch((error) => {
-      console.error("Erro ao fazer logout:", error);
-    });
+    signOut(auth).then(() => { navigate('/'); });
   };
   
   // Handlers de Submissão de Busca
@@ -135,7 +127,7 @@ const Header = () => {
     closeAll();
   };
 
-  // Categorias (Links já estão corretos)
+  // Categorias (Fixas)
   const categories = [
     { name: 'Novidades', path: '/loja?categoria=Novidades' },
     { name: 'Feminino', path: '/loja?categoria=Feminino' },
@@ -144,37 +136,40 @@ const Header = () => {
     { name: 'Ofertas', path: '/loja?categoria=Ofertas' },
   ];
 
-  // Checa se é Admin/Vendedor
-  const isPrivilegedUser = user?.role === 'admin' || user?.role === 'vendedor';
+  // Checa se é Admin/Vendedor (lógica de permissão completa)
+  const isPrivilegedUser = user?.role === 'admin' || (user?.permissions && (user.permissions.can_manage_users || user.permissions.can_view_dashboard));
 
   return (
     <>
       <header className={styles.header}>
-        {/* === CAMADA 1: Banner de Promoção === */}
-        <div className={styles.promoBar}>
-          <div className="container">FRETE GRÁTIS em compras acima de R$199!</div>
-        </div>
+        {/* === CAMADA 1: Banner de Promoção (Dinâmico) === */}
+        {settings.promoBar?.isEnabled && (
+          <div className={styles.promoBar}>
+            <div className="container">{settings.promoBar.text}</div>
+          </div>
+        )}
 
         {/* === CAMADA 2: Header Principal === */}
         <div className={styles.mainHeader}>
           <div className={`container ${styles.mainHeaderContent}`}>
             <button className={styles.mobileIcon} onClick={toggleMenu}><FaBars /></button>
-            <Link to="/" className={styles.logo} onClick={closeAll}>Fina Estampa</Link>
             
-            {/* --- Formulário de Busca Desktop (com Wrapper) --- */}
+            {/* Logo Dinâmica */}
+            <Link to="/" className={styles.logo} onClick={closeAll}>
+              {settings.logoUrl ? (
+                  <img src={settings.logoUrl} alt={settings.storeName || 'Fina Estampa'} className={styles.logoImage} />
+              ) : (
+                  settings.storeName || 'Fina Estampa' // Fallback
+              )}
+            </Link>
+            
+            {/* Formulário de Busca Desktop */}
             <div className={styles.searchWrapper} ref={searchRef}>
               <form className={styles.searchBarDesktop} onSubmit={handleSearchSubmit}>
-                <input 
-                  type="text" 
-                  placeholder="O que você está procurando?" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  onFocus={() => setIsSearchActive(true)} 
-                />
+                <input type="text" placeholder="O que você está procurando?" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} onFocus={() => setIsSearchActive(true)} />
                 <button type="submit"><FaSearch /></button>
               </form>
-
-              {/* Dropdown de Sugestões (Desktop) */}
+              {/* Dropdown de Sugestões Desktop */}
               {isSearchActive && !isSearchOpen && suggestions.length > 0 && (
                 <div className={styles.searchResultsDropdown}>
                   <ul>
@@ -190,7 +185,7 @@ const Header = () => {
               )}
             </div>
             
-            {/* --- Ícones da Direita --- */}
+            {/* Ícones da Direita */}
             <div className={styles.rightIcons}>
               <button className={`${styles.mobileIcon} ${styles.mobileSearchIcon}`} onClick={toggleSearch}><FaSearch /></button>
               
@@ -208,6 +203,7 @@ const Header = () => {
                   </Link>
                 )}
 
+                {/* --- Dropdown do Usuário (Conteúdo ATUALIZADO) --- */}
                 {isUserMenuOpen && user && (
                   <div className={styles.userDropdown}>
                     <div className={styles.userDropdownHeader}>
@@ -230,7 +226,22 @@ const Header = () => {
                       <Link to="/enderecos" onClick={closeAll}><FaMapMarkedAlt /> Endereços de entrega</Link>
                       <Link to="/formas-de-pagamento" onClick={closeAll}><FaCreditCard /> Formas de pagamento</Link>
                       <Link to="/alterar-senha" onClick={closeAll}><FaLock /> Senha de acesso</Link>
-                      <Link to="/politica-privacidade" onClick={closeAll}><FaShieldAlt /> Politica de privacidade</Link>
+                      
+                      {/* --- REQUISITO: Links Dinâmicos --- */}
+                      {/* Renderiza as páginas do CMS (ex: Sobre, FAQ) */}
+                      {settings.dynamicPages && settings.dynamicPages.length > 0 && <hr />}
+                      {settings.dynamicPages.map(page => (
+                        <Link 
+                          key={page.slug}
+                          // O link agora usa o prefixo /p/
+                          to={`/p/${page.slug}`} 
+                          onClick={closeAll}
+                        >
+                          <FaFileAlt /> {page.title}
+                        </Link>
+                      ))}
+                      {/* --- FIM DOS LINKS DINÂMICOS --- */}
+
                     </nav>
                     <div className={styles.userDropdownFooter}>
                       <button onClick={handleLogout} className={styles.logoutButton}>
@@ -248,7 +259,7 @@ const Header = () => {
                   {totalItems > 0 && (<span className={styles.cartCount}>{totalItems}</span>)}
                   <span className={styles.desktopCartText}>Carrinho</span>
                 </button>
-
+                {/* Mini Carrinho Dropdown */}
                 {isCartOpen && (
                   <div className={styles.miniCartDropdown}>
                     {items.length === 0 ? (

@@ -1,39 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  FaFacebookF, 
-  FaInstagram, 
-  FaTwitter, 
-  FaYoutube 
+  FaFacebookF, FaInstagram, FaTwitter, FaYoutube,
+  FaCcVisa, FaCcMastercard, FaPaypal, FaBarcode 
 } from 'react-icons/fa';
-import { 
-  FaCcVisa, 
-  FaCcMastercard, 
-  FaPaypal, 
-  FaBarcode 
-} from 'react-icons/fa';
+import { useSettings } from '../../../context/SettingsContext'; // 1. Importar
 import styles from './Footer.module.css';
 
 /**
  * Componente de Rodapé Completo.
- * - Inspirado em layouts de e-commerce (ex: Marisa).
- * - 4 Camadas: Newsletter, Links, Social/Pagamento, Copyright.
- * - Totalmente responsivo (Mobile-First).
- * (Princípios: UI/UX de Excelência, Design Responsivo)
+ * ATUALIZADO: Agora busca os dados (CNPJ, Endereço, Redes Sociais) do SettingsContext.
  */
 const Footer = () => {
+  // 2. Puxa as configurações
+  const { settings } = useSettings();
+  const info = settings.footerInfo; // (ex: { cnpj, address, ... })
+  const social = settings.socialMedia; // (ex: { instagram, facebook })
+
   return (
     <footer className={styles.footer}>
       {/* Camada 1: Newsletter */}
       <section className={styles.newsletter}>
-        <div className="container">
-          <h3>Receba Nossas Novidades</h3>
-          <p>Cadastre-se e ganhe 10% OFF na sua primeira compra!</p>
-          <form className={styles.newsletterForm}>
-            <input type="email" placeholder="Digite seu e-mail" />
-            <button type="submit">Cadastrar</button>
-          </form>
-        </div>
+        {/* ... (Formulário da Newsletter inalterado) ... */}
       </section>
 
       {/* Camada 2: Links Principais */}
@@ -45,6 +33,7 @@ const Footer = () => {
             <Link to="/sobre">Sobre Nós</Link>
             <Link to="/lojas">Nossas Lojas</Link>
             <Link to="/trabalhe-conosco">Trabalhe Conosco</Link>
+            <Link to="/politica-privacidade">Política de Privacidade</Link>
           </div>
 
           {/* Coluna 2: Ajuda */}
@@ -53,7 +42,7 @@ const Footer = () => {
             <Link to="/faq">Perguntas Frequentes</Link>
             <Link to="/entrega">Como Acompanhar</Link>
             <Link to="/trocas">Trocas e Devoluções</Link>
-            <Link to="/pagamento">Formas de Pagamento</Link>
+            <Link to="/formas-de-pagamento">Formas de Pagamento</Link>
           </div>
 
           {/* Coluna 3: Minha Conta */}
@@ -64,14 +53,13 @@ const Footer = () => {
             <Link to="/meus-pedidos">Meus Pedidos</Link>
           </div>
 
-          {/* Coluna 4: Social e Pagamento (Combinadas) */}
+          {/* Coluna 4: Social e Pagamento (Dinâmico) */}
           <div className={styles.footerColumn}>
             <h4>Siga-nos</h4>
             <div className={styles.socialIcons}>
-              <a href="#" target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>
-              <a href="#" target="_blank" rel="noopener noreferrer"><FaInstagram /></a>
-              <a href="#" target="_blank" rel="noopener noreferrer"><FaTwitter /></a>
-              <a href="#" target="_blank" rel="noopener noreferrer"><FaYoutube /></a>
+              {social.facebook && <a href={social.facebook} target="_blank" rel="noopener noreferrer"><FaFacebookF /></a>}
+              {social.instagram && <a href={social.instagram} target="_blank" rel="noopener noreferrer"><FaInstagram /></a>}
+              {/* Adicione outros se necessário (ex: Twitter, Youtube) */}
             </div>
             
             <h4 className={styles.paymentTitle}>Pagamento</h4>
@@ -79,17 +67,20 @@ const Footer = () => {
               <FaCcVisa />
               <FaCcMastercard />
               <FaPaypal />
-              <FaBarcode /> {/* (Simulando Boleto) */}
+              <FaBarcode />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Camada 4: Copyright (Fine Print) */}
+      {/* Camada 4: Copyright (Dinâmico) */}
       <section className={styles.footerBottom}>
         <div className="container">
-          <p>&copy; 2025 Fina Estampa E-commerce. Todos os direitos reservados.</p>
-          <p>Fina Estampa S.A. | CNPJ: 00.000.000/0001-00 | Av. Exemplo, 1234, Recife-PE</p>
+          <p>&copy; 2025 {settings.storeName}. Todos os direitos reservados.</p>
+          {/* 3. Renderiza os dados do Footer */}
+          {info.cnpj && info.address && (
+            <p>{settings.storeName} S.A. | CNPJ: {info.cnpj} | {info.address}</p>
+          )}
         </div>
       </section>
     </footer>

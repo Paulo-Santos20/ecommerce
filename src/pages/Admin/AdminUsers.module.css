@@ -1,0 +1,185 @@
+.usersPage {
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+.pageHeader h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+/* Novo Wrapper para Busca e Botão */
+.actionsWrapper {
+  display: flex;
+  flex-direction: column; /* Mobile */
+  width: 100%;
+  gap: 1rem;
+}
+
+.searchBar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  flex-grow: 1; /* Ocupa espaço */
+}
+.searchBar input {
+  font-size: 1.6rem;
+  padding: 1.1rem 1rem 1.1rem 3.5rem; /* Ajuste de padding */
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  width: 100%;
+}
+.searchBar svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.addButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 1.1rem 1.5rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.addButton:hover {
+  opacity: 0.9;
+}
+
+
+/* Tabela */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.adminTable th,
+.adminTable td {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.adminTable th {
+  font-size: 1.4rem;
+  font-weight: 600;
+  background-color: #f9f9f9;
+}
+.adminTable tbody tr:last-child td {
+  border-bottom: none;
+}
+.emptyRow {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.6rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Badge de Perfil (Role) */
+.roleBadge {
+  font-size: 1.2rem;
+  font-weight: 700;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+}
+.roleAdmin {
+  background-color: #fbe9e7;
+  color: #c62828;
+}
+.roleVendedor {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+.roleUser {
+  background-color: #f0f0f0;
+  color: #555;
+}
+
+/* Botões de Ação */
+.actionCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+.editButton, .auditButton {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  text-decoration: none;
+  justify-content: center;
+}
+.editButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+.auditButton {
+  background-color: var(--color-text-dark);
+  color: var(--color-highlight);
+}
+
+@media (min-width: 768px) {
+  .pageHeader {
+    flex-direction: row;
+    align-items: center;
+  }
+  .actionsWrapper {
+    flex-direction: row;
+    width: auto;
+  }
+  .searchBar {
+    max-width: 400px;
+  }
+  .actionCell {
+    flex-direction: row;
+  }
+}
+
+@media (max-width: 900px) {
+  .adminTable thead { display: none; }
+  .adminTable tr { display: block; margin-bottom: 1.5rem; border: 1px solid var(--color-border); border-radius: 5px; }
+  .adminTable td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--color-background); }
+  .adminTable td:last-child { border-bottom: none; }
+  .adminTable td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--color-text-dark);
+    text-align: left;
+  }
+}

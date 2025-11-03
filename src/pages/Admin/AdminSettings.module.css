@@ -1,0 +1,279 @@
+.settingsPage {
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin-bottom: 2rem;
+}
+
+/* --- Seções do Formulário --- */
+.formSection {
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 1.5rem 2rem 2rem 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.formSection legend {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.sectionDescription {
+  font-size: 1.4rem;
+  color: #555;
+  margin-top: -1rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+.formGroup label {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.formGroup input {
+  width: 100%;
+  padding: 1.2rem;
+  font-size: 1.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+}
+.formGroup small {
+  font-size: 1.3rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+.error {
+  color: red;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+.checkboxLabel input {
+  width: 18px;
+  height: 18px;
+}
+.subInput {
+  margin-left: 30px;
+  width: calc(100% - 30px);
+}
+
+/* Grid para os Banners */
+.bannerGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 1.5rem;
+}
+.bannerInput {
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  border-radius: 5px;
+  background-color: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.bannerInput strong {
+  display: block;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+.bannerInput input {
+  width: 100%;
+  font-size: 1.4rem;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.formRow {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- REQUISITO: Estilos do useFieldArray (Slider) --- */
+.fieldArrayWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.fieldArrayItem {
+  border: 1px solid var(--color-border);
+  padding: 1.5rem;
+  border-radius: 5px;
+  background-color: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  position: relative;
+}
+.fieldArrayItem strong {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.fieldArrayItem input {
+  width: 100%;
+  font-size: 1.4rem;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.arrayActions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+.arrayActions button {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.arrayActions button:hover {
+  background-color: #f0f0f0;
+}
+.arrayActions .deleteBtn {
+  color: #dc3545;
+}
+.addButton {
+  background-color: #e6f7ff;
+  border: 1px dashed #91d5ff;
+  color: #096dd9;
+  padding: 1rem;
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+/* --- FIM DOS ESTILOS --- */
+
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+.submitButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 1.2rem 2.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.submitButton:disabled {
+  background-color: #aaa;
+}
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 768px) {
+  .formRow {
+    flex-direction: row;
+  }
+  .formGroup {
+    flex: 1;
+  }
+  .bannerGrid {
+    grid-template-columns: 1fr 1fr; /* 2 colunas desktop */
+  }
+}
+
+/* ... (Mantenha todos os seus estilos anteriores) ... */
+
+/* --- NOVOS ESTILOS (Regras de Frete) --- */
+.fieldArrayLabel {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  margin-top: 1rem;
+}
+.fieldArrayWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: var(--color-background);
+  padding: 1.5rem;
+  border-radius: 5px;
+}
+.fieldArrayItemSmall {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto; /* UF | Custo | Lixeira */
+  gap: 1rem;
+  align-items: center;
+}
+.fieldArrayItemSmall input {
+  font-size: 1.4rem;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.deleteBtnSmall {
+  background: none;
+  border: none;
+  color: #dc3545;
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.addButton {
+  background-color: #e6f7ff;
+  border: 1px dashed #91d5ff;
+  color: #096dd9;
+  padding: 1rem;
+  width: 100%;
+  font-size: 1.5rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}

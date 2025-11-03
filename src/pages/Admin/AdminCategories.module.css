@@ -1,0 +1,245 @@
+.adminPage {
+  animation: fadeIn 0.3s ease-in;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pageHeader {
+  display: flex;
+  flex-direction: column; /* Mobile */
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1.5rem;
+}
+.pageHeader h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.actionsWrapper {
+  display: flex;
+  flex-direction: column; /* Mobile */
+  width: 100%;
+  gap: 1rem;
+}
+
+.searchBar {
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+}
+.searchBar input {
+  font-size: 1.6rem;
+  padding: 1rem 1rem 1rem 3.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  width: 100%;
+}
+.searchBar svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.addButton {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 1.1rem 1.5rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.addButton:hover {
+  opacity: 0.9;
+}
+
+/* --- Tabela --- */
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--color-highlight);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+.adminTable th,
+.adminTable td {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+.adminTable th {
+  font-size: 1.4rem;
+  font-weight: 600;
+  background-color: #f9f9f9;
+}
+.adminTable tbody tr:last-child td {
+  border-bottom: none;
+}
+.adminTable tbody tr:hover {
+  background-color: var(--color-background);
+}
+.emptyRow {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.6rem;
+  color: #555;
+  font-style: italic;
+}
+
+/* Botões de Ação na Tabela */
+.toggleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.toggleBtn.active {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+}
+.toggleBtn.inactive {
+  background-color: #fbe9e7;
+  color: #c62828;
+}
+.toggleBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.actionCell {
+    display: flex;
+    gap: 0.8rem;
+}
+.editButton, .deleteButton {
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 0.8rem 1.2rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+.editButton {
+  background-color: var(--color-text-dark);
+  color: var(--color-highlight);
+}
+.deleteButton {
+  background-color: #fbe9e7;
+  color: #c62828;
+  border: 1px solid #c62828;
+}
+.deleteButton:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Spinner de Ação */
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* --- Modal/Formulário --- */
+.formOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Centraliza o form menor */
+  padding: 2rem;
+}
+.formContainer {
+  width: 100%;
+  max-width: 500px; /* Formulário de categoria é menor */
+  z-index: 2001;
+  position: relative;
+}
+/* (O form em si está em CategoryForm.module.css) */
+.closeModalButton {
+  position: absolute;
+  bottom: -45px; 
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: var(--color-primary);
+  border: 2px solid var(--color-primary);
+  font-size: 1.6rem;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* --- Responsividade --- */
+@media (min-width: 768px) {
+  .pageHeader {
+    flex-direction: row;
+    align-items: center;
+  }
+  .actionsWrapper {
+    flex-direction: row;
+    width: auto;
+  }
+}
+@media (max-width: 900px) {
+  .adminTable thead {
+    display: none; 
+  }
+  .adminTable tr {
+    display: block;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .adminTable td {
+    display: block;
+    text-align: right; 
+    padding-left: 50%; 
+    position: relative;
+    border-bottom: 1px solid var(--color-background);
+  }
+  .adminTable td:last-child {
+    border-bottom: none;
+  }
+  .adminTable td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 600;
+    color: var(--color-text-dark);
+    text-align: left;
+  }
+}

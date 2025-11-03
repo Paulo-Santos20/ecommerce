@@ -1,0 +1,82 @@
+.form {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.formTitle {
+  font-size: 2.2rem;
+  color: var(--color-primary);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: 2rem;
+}
+
+.formGroup label {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+.formGroup input {
+  font-size: 1.6rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: #fdfdfd;
+  width: 100%;
+}
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(128,0,0, 0.1);
+}
+
+.error {
+  color: red;
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btnCancel,
+.btnSubmit {
+  font-size: 1.6rem;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex-grow: 1; /* Faz os botões ocuparem espaço */
+}
+
+.btnCancel {
+  background-color: #f0f0f0;
+  color: var(--color-text-dark);
+}
+.btnCancel:hover {
+  background-color: #e0e0e0;
+}
+
+.btnSubmit {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+.btnSubmit:hover {
+  opacity: 0.9;
+}
+.btnSubmit:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}

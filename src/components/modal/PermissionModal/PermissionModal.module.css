@@ -1,0 +1,150 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+.modalContent {
+  background: var(--color-highlight);
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px; /* Modal largo para os checkboxes */
+  position: relative;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 2rem;
+  color: #888;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.title {
+  font-size: 2.2rem;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.userInfo {
+  background-color: var(--color-background);
+  border-radius: 5px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+.userInfo p {
+    margin: 0.5rem 0;
+}
+
+/* Estilos do Formulário */
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+.formGroup label {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+.formGroup small {
+    font-size: 1.3rem;
+    color: #555;
+    margin-top: 0.5rem;
+    display: block;
+}
+.formGroup .select {
+  font-size: 1.6rem;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  width: 100%;
+  background-color: #fff;
+}
+
+/* --- REQUISITO: Grid de Checkboxes --- */
+.permissionGrid {
+  display: grid;
+  grid-template-columns: 1fr; /* 1 coluna mobile */
+  gap: 1rem;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  padding: 1.5rem;
+  max-height: 250px; /* Limita altura */
+  overflow-y: auto; /* Adiciona scroll */
+}
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+  padding: 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.checkboxLabel:hover {
+  background-color: #e9e9e9;
+}
+.checkboxLabel input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+/* Ações */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+}
+.btnCancel, .btnSubmit {
+  font-size: 1.6rem;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  font-weight: 600;
+  flex-grow: 1;
+  cursor: pointer;
+}
+.btnCancel {
+  background-color: #f0f0f0;
+  color: var(--color-text-dark);
+}
+.btnSubmit {
+  background-color: var(--color-primary);
+  color: var(--color-highlight);
+}
+.btnSubmit:disabled {
+  background-color: #aaa;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 600px) {
+    .permissionGrid {
+        grid-template-columns: 1fr 1fr; /* 2 colunas desktop */
+    }
+}

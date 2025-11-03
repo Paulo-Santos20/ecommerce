@@ -2,42 +2,47 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import Loading from '../components/ui/Loading/Loading';
-import { toast } from 'react-toastify';
+// A 'toast' foi removida para corrigir o erro "Maximum update depth"
 
 /**
  * Rota Protegida (Guarda de Rota) para o CMS.
- * Verifica se o usuário está logado e se tem o 'role' (papel)
- * de 'admin' ou 'vendedor'.
+ * ATUALIZADO: Verifica o 'role' (antigo) E o OBJETO 'permissions' (novo).
  */
-const AdminRoute = ({ allowRoles = ['admin'] }) => {
+const AdminRoute = () => {
     
-    // --- CORREÇÃO APLICADA AQUI ---
-    // Selecionamos cada "fatia" do estado individualmente
-    // para evitar o loop infinito de renderização.
+    // Seletores individuais para evitar loop infinito
     const user = useAuthStore((state) => state.user);
     const isAuthReady = useAuthStore((state) => state.isAuthReady);
-    // --- FIM DA CORREÇÃO ---
 
     // 1. Espera o Firebase Auth estar pronto
     if (!isAuthReady) {
         return <Loading />;
     }
 
-    // 2. Se estiver pronto, mas não logado, redireciona para Login
+    // 2. Se estiver pronto, mas não logado
     if (!user) {
-        toast.warn("Você precisa estar logado para acessar esta página.");
         return <Navigate to="/login" replace state={{ from: '/admin' }} />;
     }
 
-    // 3. Se estiver logado, mas não tiver o papel (role) autorizado
-    if (!allowRoles.includes(user.role)) {
-        toast.error("Acesso não autorizado.");
-        return <Navigate to="/" replace />; // Redireciona para a Home
+    // --- 3. CORREÇÃO DA LÓGICA DE PERMISSÃO ---
+    //
+    // Verificação 1: O usuário tem o 'role' "admin" (sistema antigo/legado)?
+    // Isso é a "chave mestra" para o primeiro login.
+    const isLegacyAdmin = user.role === 'admin';
+    
+    // Verificação 2: O usuário tem o NOVO objeto de permissões?
+    // Acessa a *chave* 'can_view_dashboard' no *objeto* 'permissions'.
+    const hasDashboardPermission = user.permissions && user.permissions.can_view_dashboard;
+    
+    // Se o usuário for um admin "legado" (como você, antes de se atualizar)
+    // OU tiver a nova permissão, ele pode entrar.
+    if (isLegacyAdmin || hasDashboardPermission) {
+        return <Outlet />; // Renderiza o <AdminLayout>
     }
+    // --- FIM DA CORREÇÃO ---
 
-    // 4. Se estiver pronto, logado e autorizado, renderiza o layout do admin
-    // (O <Outlet> renderiza o <AdminLayout> que definimos no AppRoutes)
-    return <Outlet />;
+    // 4. Se não for nenhum dos dois, é um usuário comum. Redireciona para a Home.
+    return <Navigate to="/" replace />;
 };
 
 export default AdminRoute;

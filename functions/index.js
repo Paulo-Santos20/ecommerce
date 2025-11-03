@@ -1,6 +1,7 @@
+// --- Imports Globais ---
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { onDocumentCreated } = require("firebase-functions/v2/firestore");
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { setGlobalOptions } = require("firebase-functions/v2");
 const logger = require("firebase-functions/logger");
 
@@ -10,8 +11,8 @@ const axios = require("axios");
 admin.initializeApp();
 const db = admin.firestore();
 
-// Importa o serverTimestamp v2
-const { serverTimestamp } = admin.firestore.FieldValue;
+// Importa os 'FieldValues' necessários (Timestamp e Increment)
+const { serverTimestamp, increment } = admin.firestore.FieldValue;
 
 // Define a região globalmente para todas as funções
 setGlobalOptions({ region: "southamerica-east1" });
@@ -54,10 +55,7 @@ exports.deactivateExpiredOffers = onSchedule("every 24 hours", async (event) => 
 exports.notifyAdminOnNewMessage = onDocumentCreated("conversations/{userId}/messages/{messageId}", async (event) => {
   
   const snap = event.data;
-  if (!snap) {
-    logger.log("Nenhum dado associado ao evento.");
-    return;
-  }
+  if (!snap) { logger.log("Nenhum dado associado ao evento."); return; }
   const message = snap.data();
   
   // Só notifica se o autor for o USUÁRIO
@@ -96,7 +94,6 @@ exports.notifyAdminOnNewMessage = onDocumentCreated("conversations/{userId}/mess
  * Recebe respostas do admin e salva no Firestore
  */
 exports.telegramWebhook = onRequest(async (req, res) => {
-  // Verifica o token secreto
   const secretToken = req.header("X-Telegram-Bot-Api-Secret-Token");
   if (secretToken !== process.env.TELEGRAM_SECRET_TOKEN) {
     logger.warn("Request não autorizado (token inválido)");
@@ -105,7 +102,6 @@ exports.telegramWebhook = onRequest(async (req, res) => {
 
   const { message } = req.body;
 
-  // Ignora se não for uma resposta a uma mensagem
   if (!message || !message.reply_to_message || !message.text) {
     logger.log("Não é uma resposta ou não tem texto, ignorando.");
     return res.status(200).send("OK");
@@ -115,37 +111,33 @@ exports.telegramWebhook = onRequest(async (req, res) => {
     const adminReplyText = message.text;
     const originalMessage = message.reply_to_message.text;
 
-    // Extrai o Ref: da última linha
     const lines = originalMessage.split('\n');
     const lastLine = lines[lines.length - 1]; 
     const match = lastLine.match(/Ref: ([\w-]+)/); 
 
     if (!match || !match[1]) {
-      logger.error("Não foi possível encontrar o 'Ref: {userId}' na última linha da mensagem de resposta.", originalMessage);
-      // Avisa o admin no Telegram sobre o erro
+      logger.error("Não foi possível encontrar o 'Ref: {userId}' na mensagem de resposta.", originalMessage);
       await axios.post(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
         chat_id: message.chat.id,
-        text: `ERRO: Não consegui identificar o usuário (Ref:) desta resposta. Por favor, use "Reply" na mensagem original do bot.`
+        text: `ERRO: Não consegui identificar o usuário (Ref:) desta resposta.`
       });
       return res.status(200).send("OK");
     }
 
     const userId = match[1];
 
-    // Salva a resposta do admin no Firestore
     const messagesRef = db.collection("conversations").doc(userId).collection("messages");
     await messagesRef.add({
       text: adminReplyText,
       author: "admin", 
       authorName: "Fina Estampa",
-      createdAt: serverTimestamp(), // Sintaxe v2 correta
+      createdAt: serverTimestamp(),
     });
 
-    // Atualiza a "última mensagem" na conversa
     const convoRef = db.collection("conversations").doc(userId);
     await convoRef.update({
         lastMessage: adminReplyText,
-        lastUpdatedAt: serverTimestamp(), // Sintaxe v2 correta
+        lastUpdatedAt: serverTimestamp(),
         isReadByAdmin: true 
     });
 
@@ -165,42 +157,155 @@ exports.telegramWebhook = onRequest(async (req, res) => {
 exports.deleteOldConversations = onSchedule("every day 05:00", async (event) => {
   logger.log("Iniciando limpeza de conversas antigas...");
   
-  // 1. Calcula o timestamp de 24 horas atrás
   const cutoff = new Date();
   cutoff.setHours(cutoff.getHours() - 24);
   const cutoffTimestamp = admin.firestore.Timestamp.fromDate(cutoff);
 
-  // 2. Encontra conversas atualizadas antes do corte
-  const query = db.collection("conversations")
-    .where("lastUpdatedAt", "<=", cutoffTimestamp);
-    
+  const query = db.collection("conversations").where("lastUpdatedAt", "<=", cutoffTimestamp);
   const oldConversations = await query.get();
   
   if (oldConversations.empty) {
     logger.log("Nenhuma conversa antiga para apagar.");
-    return null;
+    return;
   }
 
   logger.log(`Encontradas ${oldConversations.size} conversas para apagar...`);
   
-  // 3. Deleta as subcoleções (recursivamente) e os documentos principais
   const deletePromises = [];
   oldConversations.forEach(doc => {
-    // Adiciona a promessa de deletar a subcoleção 'messages'
-    // recursiveDelete é a forma correta de apagar subcoleções
     deletePromises.push(db.recursiveDelete(doc.ref.collection("messages")));
-    
-    // Adiciona a promessa de deletar o documento principal 'conversation'
     deletePromises.push(doc.ref.delete());
   });
 
   try {
-    // 4. Espera todas as exclusões terminarem
     await Promise.all(deletePromises);
     logger.log(`Sucesso! ${oldConversations.size} conversas antigas foram apagadas.`);
   } catch (error) {
     logger.error("Erro ao apagar conversas antigas:", error);
   }
   
-  return null;
+  return;
+});
+
+/**
+ * FUNÇÃO 5: Atualiza Contagem de Vendas e Uso de Cupons
+ * Dispara quando um NOVO PEDIDO é criado na coleção 'orders'.
+ */
+exports.updateSalesCount = onDocumentCreated("orders/{orderId}", async (event) => {
+  logger.log("Novo pedido detectado, atualizando contagens...");
+  
+  const snap = event.data;
+  if (!snap) {
+    logger.log("Nenhum dado no evento do pedido.");
+    return;
+  }
+  
+  const orderData = snap.data();
+  const items = orderData.itens;
+  const appliedCoupon = orderData.appliedCoupon; // Pega o cupom usado
+
+  const batch = db.batch();
+
+  // 1. Atualiza contagem de vendas dos PRODUTOS
+  if (items && items.length > 0) {
+    items.forEach(item => {
+      if (item.productId) {
+        const productRef = db.collection("products").doc(item.productId);
+        batch.update(productRef, {
+          salesCount: increment(item.quantity) // Usa o 'increment'
+        });
+      }
+    });
+  }
+
+  // --- CORREÇÃO: Atualiza contagem de uso do CUPOM ---
+  // (O Checkout.jsx precisa salvar 'appliedCoupon.id' no pedido)
+  if (appliedCoupon && appliedCoupon.id) { 
+    const couponRef = db.collection("coupons").doc(appliedCoupon.id);
+    batch.update(couponRef, {
+        uses: increment(1) // Incrementa o contador 'uses'
+    });
+    logger.log(`Contagem de uso do cupom ${appliedCoupon.code} atualizada.`);
+  }
+  // ----------------------------------------------------
+
+  try {
+    await batch.commit();
+    logger.log(`Contagens do pedido ${snap.id} atualizadas.`);
+  } catch (error) {
+    logger.error("Erro ao atualizar contagens: ", error);
+  }
+  return;
+});
+
+/**
+ * FUNÇÃO 6: Criar Novo Usuário (Admin)
+ * (v2 Syntax: onCall)
+ */
+exports.createNewUser = onCall({ region: "southamerica-east1" }, async (request) => {
+  // 1. Verifica se o usuário que está chamando está autenticado
+  if (!request.auth) {
+    logger.error("Falha de permissão: Usuário não autenticado.");
+    throw new HttpsError('unauthenticated', 'Você deve estar logado.');
+  }
+
+  // 2. Verifica as permissões (Claims OU Firestore Database)
+  let isCallerAdmin = false;
+  if (request.auth.token.role === 'admin') {
+    isCallerAdmin = true;
+  } else {
+    try {
+      const adminUserDoc = await db.collection('users').doc(request.auth.uid).get();
+      // Verifica o 'role' antigo ou a nova permissão
+      if (adminUserDoc.data()?.role === 'admin' || adminUserDoc.data()?.permissions?.can_manage_users) {
+        isCallerAdmin = true;
+      }
+    } catch (e) {
+      logger.error("Erro ao verificar permissão do admin no Firestore:", e);
+    }
+  }
+
+  if (!isCallerAdmin) {
+    logger.error(`Falha de permissão: Usuário ${request.auth.uid} não é admin.`);
+    throw new HttpsError('permission-denied', 'Você deve ser um administrador para criar usuários.');
+  }
+
+  // 3. Pega os dados do formulário
+  const { email, password, displayName, role, permissions } = request.data;
+  if (!email || !password || !displayName || !role) {
+    throw new HttpsError('invalid-argument', 'Dados incompletos.');
+  }
+
+  try {
+    // 4. Cria o usuário no Firebase AUTHENTICATION
+    const userRecord = await admin.auth().createUser({
+      email: email,
+      password: password,
+      displayName: displayName,
+    });
+
+    // 5. Define o 'role' nos CLAIMS (para o back-end)
+    await admin.auth().setCustomUserClaims(userRecord.uid, { role: role });
+
+    // 6. Cria o documento correspondente no FIRESTORE (para o front-end)
+    await db.collection('users').doc(userRecord.uid).set({
+      displayName: displayName,
+      email: email,
+      role: role,
+      permissions: permissions || {}, // Salva o objeto de permissões
+      createdAt: serverTimestamp(),
+      cpf: '', dataNascimento: '', telefone: '',
+      endereco: {}, historicoPedidos: [],
+    });
+
+    logger.log(`Novo usuário criado por admin: ${email} (UID: ${userRecord.uid})`);
+    return { success: true, uid: userRecord.uid };
+
+  } catch (error) {
+    logger.error("Erro ao criar novo usuário:", error.message);
+    if (error.code === 'auth/email-already-exists') {
+      throw new HttpsError('already-exists', 'Este e-mail já está em uso.');
+    }
+    throw new HttpsError('internal', 'Erro interno ao criar usuário.');
+  }
 });
