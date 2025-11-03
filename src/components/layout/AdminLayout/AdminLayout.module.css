@@ -1,0 +1,103 @@
+.adminLayout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: var(--color-text-dark); /* Cor escura */
+  color: var(--color-text-light);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0; /* Impede que encolha */
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebarHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #444;
+}
+.sidebarHeader h3 {
+  font-size: 2rem;
+  color: var(--color-highlight);
+  text-align: center;
+}
+.sidebarHeader p {
+  font-size: 1.4rem;
+  color: #ccc;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  padding-top: 1rem;
+}
+.sidebarNav a {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #ccc;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+.sidebarNav a:hover {
+  background-color: #3f3f3f;
+  color: var(--color-highlight);
+}
+.sidebarNav a.activeLink {
+  background-color: #444;
+  color: var(--color-highlight);
+  border-left-color: var(--color-primary); /* Vinho */
+}
+.sidebarNav a svg {
+  font-size: 1.4rem;
+  width: 20px;
+}
+
+/* Área de Conteúdo */
+.adminContent {
+  flex-grow: 1;
+  background-color: var(--color-background); /* Fundo cinza claro */
+  padding: 2rem 3rem;
+  overflow-y: auto; /* Permite scroll no conteúdo */
+}
+
+/* Responsividade (Mobile) */
+@media (max-width: 768px) {
+  .adminLayout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+  .sidebarNav {
+    flex-direction: row;
+    overflow-x: auto; /* Scroll horizontal no menu mobile */
+  }
+  .sidebarNav a {
+    justify-content: center;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+    padding: 1.5rem 1rem;
+  }
+  .sidebarNav a.activeLink {
+     border-bottom-color: var(--color-primary);
+  }
+  .sidebarNav a span {
+    display: none; /* Esconde o texto, mostra só o ícone */
+  }
+  .adminContent {
+    padding: 1.5rem;
+  }
+}

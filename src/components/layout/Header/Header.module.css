@@ -660,3 +660,15 @@
       gap: 1rem;
   }
 }
+
+.userDropdownNav a.adminLink {
+  font-weight: 700;
+  color: var(--color-primary);
+  background-color: #fdf0f0;
+}
+.userDropdownNav a.adminLink:hover {
+  background-color: #fbeaea;
+}
+.userDropdownNav a.adminLink svg {
+  color: var(--color-primary);
+}
